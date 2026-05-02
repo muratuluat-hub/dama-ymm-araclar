@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hesaplama Araçları | DAMA YMM</title>
+<meta name="description" content="DAMA YMM Yeminli Mali Müşavirlik tarafından sunulan online vergi hesaplama araçları. İndirimli KV, FGK, NSAİ, KDV iadesi ve daha fazlası.">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    background: #f8f9fb;
+    color: #1a202c;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Top Navigation Bar - damaymm.com style */
+  .top-nav {
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+  .top-nav-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .top-nav .brand {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1e3a8a;
+    text-decoration: none;
+    letter-spacing: -0.3px;
+  }
+  .top-nav .brand small {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: #64748b;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+  .top-nav .menu {
+    display: flex;
+    gap: 28px;
+    list-style: none;
+  }
+  .top-nav .menu a {
+    color: #475569;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .top-nav .menu a:hover { color: #1e3a8a; }
+  .top-nav .menu a.active {
+    color: #1e3a8a;
+    font-weight: 600;
+  }
+
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px;
+  }
+
+  /* Hero */
+  header.hero {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    color: white;
+    padding: 56px 48px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(30, 58, 138, 0.18);
+    margin-bottom: 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header.hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.08) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  header.hero h1 {
+    font-size: 34px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    letter-spacing: -0.5px;
+    position: relative;
+  }
+  header.hero .subtitle {
+    font-size: 17px;
+    opacity: 0.92;
+    margin-bottom: 8px;
+    position: relative;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+  }
+  header.hero .firm-info {
+    font-size: 13px;
+    opacity: 0.7;
+    margin-top: 18px;
+    position: relative;
+  }
+
+  /* Section title */
+  .section-title {
+    font-size: 24px;
+    color: #1e3a8a;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .section-subtitle {
+    color: #64748b;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  /* Tools grid */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 22px;
+    margin-bottom: 50px;
+  }
+  .tool-card {
+    background: white;
+    border-radius: 10px;
+    padding: 26px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e2e8f0;
+    transition: all 0.25s ease;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .tool-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(30, 64, 175, 0.12);
+    border-color: #1e40af;
+  }
+  .tool-card.disabled { opacity: 0.6; cursor: not-allowed; }
+  .tool-card.disabled:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border-color: #e2e8f0;
+  }
+  .tool-card .status-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .tool-card .status-badge.active { background: #d1fae5; color: #047857; }
+  .tool-card .status-badge.coming { background: #fef3c7; color: #92400e; }
+  .tool-card .icon { font-size: 32px; margin-bottom: 12px; display: inline-block; }
+  .tool-card h3 {
+    font-size: 17px;
+    color: #1e3a8a;
+    margin-bottom: 8px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+  .tool-card p {
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 14px;
+    flex-grow: 1;
+    line-height: 1.55;
+  }
+  .tool-card .meta {
+    font-size: 11px;
+    color: #94a3b8;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 10px;
+    margin-top: auto;
+  }
+  .tool-card .meta strong { color: #475569; }
+
+  /* Info section */
+  .info-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    margin-bottom: 40px;
+  }
+  .info-card {
+    background: white;
+    padding: 26px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border-left: 4px solid #1e40af;
+  }
+  .info-card h3 { font-size: 15px; color: #1e3a8a; margin-bottom: 10px; font-weight: 700; }
+  .info-card p { color: #475569; font-size: 13px; line-height: 1.7; }
+  .info-card a { color: #1e40af; text-decoration: none; font-weight: 600; }
+  .info-card a:hover { text-decoration: underline; }
+
+  /* Footer - damaymm.com style */
+  footer {
+    background: #1e293b;
+    color: #cbd5e1;
+    padding: 48px 32px 24px;
+    margin-top: 48px;
+  }
+  .footer-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 32px;
+  }
+  .footer-col h4 {
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    letter-spacing: 0.3px;
+  }
+  .footer-col p, .footer-col a {
+    color: #94a3b8;
+    font-size: 13px;
+    line-height: 1.8;
+    text-decoration: none;
+    display: block;
+  }
+  .footer-col a:hover { color: white; }
+  .footer-col.brand h3 {
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .footer-bottom {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding-top: 24px;
+    border-top: 1px solid #334155;
+    text-align: center;
+    font-size: 12px;
+    color: #64748b;
+  }
+  .footer-bottom .disclaimer {
+    font-size: 11px;
+    color: #475569;
+    margin-top: 12px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 768px) {
+    .top-nav-inner { flex-direction: column; gap: 12px; padding: 14px 20px; }
+    .top-nav .menu { flex-wrap: wrap; gap: 16px; justify-content: center; }
+    .container { padding: 20px; }
+    header.hero { padding: 36px 24px; }
+    header.hero h1 { font-size: 24px; }
+    header.hero .subtitle { font-size: 14px; }
+    .info-section { grid-template-columns: 1fr; }
+    .tools-grid { grid-template-columns: 1fr; }
+    .footer-inner { grid-template-columns: 1fr; gap: 28px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="https://damaymm.com" class="brand">
+        DAMA YMM
+        <small>YEMİNLİ MALİ MÜŞAVİRLİK</small>
+      </a>
+      <ul class="menu">
+        <li><a href="https://damaymm.com">Ana Sayfa</a></li>
+        <li><a href="https://damaymm.com/#hakkimizda">Hakkımızda</a></li>
+        <li><a href="https://damaymm.com/#hizmetlerimiz">Hizmetlerimiz</a></li>
+        <li><a href="https://damaymm.com/circulars">Sirkülerler</a></li>
+        <li><a href="#" class="active">Hesaplama Araçları</a></li>
+        <li><a href="https://damaymm.com/#iletisim">İletişim</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <header class="hero">
+      <h1>Hesaplama Araçları</h1>
+      <div class="subtitle">Vergi denetimi, müşavirlik ve danışmanlık alanlarında uzman kadromuzla geliştirdiğimiz online hesaplama araçları</div>
+      <div class="firm-info">
+        Dama YMM Yeminli Mali Müşavirlik · Ömer Murat Uluat
+      </div>
+    </header>
+
+    <h2 class="section-title">Mevcut Araçlar</h2>
+    <p class="section-subtitle">Güncel vergi mevzuatına uygun olarak sürekli güncellenen profesyonel hesaplama çözümleri</p>
+
+    <div class="tools-grid">
+
+      <!-- 1. Aktif: İndirimli KV -->
+      <a href="indirimli-kv/" class="tool-card">
+        <span class="status-badge active">Aktif</span>
+        <span class="icon">📊</span>
+        <h3>İndirimli Kurumlar Vergisi</h3>
+        <p>KVK 32/A kapsamında yatırım teşvik belgeli yatırımlarda indirimli kurumlar vergisi tasarrufu hesaplama. Yatırım dönemi tavan kontrolü ve asgari KV karşılaştırması dahil.</p>
+        <div class="meta">
+          <strong>Kapsam:</strong> Eski Rejim · Yatırım Dönemi<br>
+          <strong>Mevzuat:</strong> KVK 32/A · 2012/3305 BKK
+        </div>
+      </a>
+
+      <!-- 2. FGK -->
+      <div class="tool-card disabled">
+        <span class="status-badge coming">Yakında</span>
+        <span class="icon">⚖️</span>
+        <h3>Finansman Gider Kısıtlaması</h3>
+        <p>KVK 11/1-i kapsamında öz sermaye/yabancı kaynak karşılaştırması, kısıtlanan gider tutarı ve KKEG hesaplaması. Tam tasdik raporlarına uygun format.</p>
+        <div class="meta">
+          <strong>Kapsam:</strong> Öz Sermaye Testi · KKEG<br>
+          <strong>Mevzuat:</strong> KVK 11/1-i · 7194 SK
+        </div>
+      </div>
+
+      <!-- 3. Nakit Sermaye Artırımı İndirimi -->
+      <div class="tool-card disabled">
+        <span class="status-badge coming">Yakında</span>
+        <span class="icon">💵</span>
+        <h3>Nakit Sermaye Artırımı İndirimi</h3>
+        <p>KVK 10/1-ı kapsamında nakdi sermaye artışları için 5 yıllık indirim hesabı, TCMB faiz oranı, halka açık şirket bonusu ve devreden tutar takibi.</p>
+        <div class="meta">
+          <strong>Kapsam:</strong> 5 Yıl İndirim · TCMB Oranı<br>
+          <strong>Mevzuat:</strong> KVK 10/1-ı · 1 No.lu KVK GT
+        </div>
+      </div>
+
+      <!-- 4. VUK Mük. 298/Ç Sürekli Yeniden Değerleme -->
+      <div class="tool-card disabled">
+        <span class="status-badge coming">Yakında</span>
+        <span class="icon">📈</span>
+        <h3>Sürekli Yeniden Değerleme</h3>
+        <p>Sabit kıymetler ve birikmiş amortismanlarının TÜFE yeniden değerleme oranı ile düzeltilmesi. Her geçici vergi dönemi için kümülatif hesaplama, değer artış fonu (522).</p>
+        <div class="meta">
+          <strong>Kapsam:</strong> Geçici Vergi Bazlı · Kıymet Bazlı<br>
+          <strong>Mevzuat:</strong> VUK Mük. 298/Ç · 537 No.lu GT
+        </div>
+      </div>
+
+      <!-- 5. Amortisman -->
+      <div class="tool-card disabled">
+        <span class="status-badge coming">Yakında</span>
+        <span class="icon">🏭</span>
+        <h3>Amortisman Hesaplama</h3>
+        <p>Normal, azalan bakiyeler ve kıst amortisman yöntemleri. Faydalı ömür tablosu, hızlandırılmış amortisman, AR-GE sabit kıymet ve binek otomobil sınırlamaları.</p>
+        <div class="meta">
+          <strong>Kapsam:</strong> Normal · Azalan · Kıst<br>
+          <strong>Mevzuat:</strong> VUK 313-320 · 333 No.lu GT
+        </div>
+      </div>
+
+      <!-- 6. KDV İadesi -->
+      <div class="tool-card disabled">
+        <span class="status-badge coming">Yakında</span>
+        <span class="icon">💰</span>
+        <h3>KDV İadesi Hesaplama</h3>
+        <p>İndirilemeyen KDV, ihracat istisnası, indirimli oran iadesi ve özel matrah uygulamaları için kapsamlı hesaplama aracı.</p>
+        <div class="meta">
+          <strong>Kapsam:</strong> KDV 11/1-a, 13/d, 28, 29<br>
+          <strong>Mevzuat:</strong> 3065 SK · KDV GUT
+        </div>
+      </div>
+
+      <!-- 7. Sermaye Tespiti -->
+      <div class="tool-card disabled">
+        <span class="status-badge coming">Yakında</span>
+        <span class="icon">🏛</span>
+        <h3>Sermaye Tespiti</h3>
+        <p>Nakit ve ayni sermaye artırımları, iç kaynaklardan artırım (502, 522, 529, 549) ve TTK 376 sermaye kaybı analizi.</p>
+        <div class="meta">
+          <strong>Kapsam:</strong> TTK 376 · Sermaye Artırım<br>
+          <strong>Mevzuat:</strong> TTK · KVK 10/1-ı
+        </div>
+      </div>
+
+      <!-- 8. AR-GE -->
+      <div class="tool-card disabled">
+        <span class="status-badge coming">Yakında</span>
+        <span class="icon">🔬</span>
+        <h3>AR-GE İndirimi</h3>
+        <p>5746 SK kapsamında AR-GE merkezleri ve tasarım merkezleri için indirim, fon yükümlülüğü ve devreden tutar takibi.</p>
+        <div class="meta">
+          <strong>Kapsam:</strong> 5746 SK · Tasarım Merkezi<br>
+          <strong>Mevzuat:</strong> 5746 SK · 4 No.lu Tebliğ
+        </div>
+      </div>
+
+      <!-- 9. Kıdem Tazminatı -->
+      <div class="tool-card disabled">
+        <span class="status-badge coming">Yakında</span>
+        <span class="icon">📋</span>
+        <h3>Kıdem Tazminatı</h3>
+        <p>4857 SK'ya göre kıdem ve ihbar tazminatı, bordro hazırlama, brüt-net hesabı ve damga vergisi.</p>
+        <div class="meta">
+          <strong>Kapsam:</strong> Kıdem · İhbar · Yıllık İzin<br>
+          <strong>Mevzuat:</strong> 4857 SK · 1475 SK
+        </div>
+      </div>
+
+      <!-- 10. Brüt-Net -->
+      <div class="tool-card disabled">
+        <span class="status-badge coming">Yakında</span>
+        <span class="icon">💼</span>
+        <h3>Brüt-Net Maaş</h3>
+        <p>Türk vergi ve SGK mevzuatına göre güncel oranlarla brüt-net dönüşümü, asgari ücret istisnası ve teşvikler.</p>
+        <div class="meta">
+          <strong>Kapsam:</strong> GVK · 5510 SGK<br>
+          <strong>Mevzuat:</strong> Güncel Oranlar 2026
+        </div>
+      </div>
+
+    </div>
+
+    <div class="info-section">
+
+      <div class="info-card">
+        <h3>📝 Kullanım Notu</h3>
+        <p>Bu hesaplama araçları, DAMA YMM tarafından mali müşavirler ve mükelleflerin kullanımı için sunulmaktadır. Sonuçlar bilgilendirme amaçlıdır; nihai vergi beyannamesi öncesi <strong>YMM ile değerlendirme</strong> önerilir. Mevzuat değişiklikleri sürekli takip edilir, araçlar güncel tutulur.</p>
+      </div>
+
+      <div class="info-card">
+        <h3>📞 Profesyonel Danışmanlık</h3>
+        <p>Tam tasdik raporu, KDV iadesi, AR-GE belgelendirme, kurumsal vergi danışmanlığı ve YMM tasdik hizmetleri için bize ulaşabilirsiniz.<br><br>
+        🌐 <a href="https://damaymm.com" target="_blank">damaymm.com</a><br>
+        ✉️ <a href="mailto:murat.uluat@damaymm.com">murat.uluat@damaymm.com</a><br>
+        📞 <a href="tel:+905325927778">+90 532 592 77 78</a></p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Footer - damaymm.com style -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-col brand">
+        <h3>DAMA YMM</h3>
+        <p>Yeminli Mali Müşavirlik hizmetleri ile işletmenizin mali süreçlerini güvenilir ve profesyonel bir şekilde yönetiyoruz.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Hızlı Linkler</h4>
+        <a href="https://damaymm.com">Ana Sayfa</a>
+        <a href="https://damaymm.com/#hizmetlerimiz">Hizmetlerimiz</a>
+        <a href="https://damaymm.com/circulars">Sirkülerler</a>
+        <a href="https://damaymm.com/#iletisim">İletişim</a>
+      </div>
+      <div class="footer-col">
+        <h4>İletişim</h4>
+        <p>Tatlısu cad. 348/4 Sarıyer İstanbul</p>
+        <a href="tel:+905325927778">+90 532 592 77 78</a>
+        <a href="mailto:murat.uluat@damaymm.com">murat.uluat@damaymm.com</a>
+      </div>
+      <div class="footer-col">
+        <h4>Vergi Kaynakları</h4>
+        <a href="https://damaymm.com/circulars">Vergi Mevzuatı Güncellemeleri</a>
+        <a href="#">Vergi Hesaplama Araçları</a>
+        <a href="#">Vergi Sunumları</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2026 DAMA CPA Inc. Tüm hakları saklıdır. · Ömer Murat Uluat · YMM · Mühür No: 3209 · İstanbul YMM Odası Sicil No: 2694
+      <div class="disclaimer">
+        Bu sitedeki hesaplama araçları bilgilendirme amaçlı olup, vergi beyannamesi yerine geçmez. Mevzuat değişiklikleri ve özelge gelişmeleri için yetkili YMM ile görüşülmesi tavsiye edilir.
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
