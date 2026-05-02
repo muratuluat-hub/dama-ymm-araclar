@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finansman Gider Kısıtlaması Hesaplama | DAMA YMM</title>
+<meta name="description" content="KVK 11/1-i kapsamında finansman gider kısıtlaması, öz sermaye/yabancı kaynak karşılaştırması ve KKEG hesaplama aracı.">
+<style>
+  :root{
+    --bg:#f4f6fa;
+    --surface:#ffffff;
+    --surface-alt:#f8f9fc;
+    --border:#e3e7ee;
+    --border-strong:#d0d6e0;
+    --text:#1a2332;
+    --text-muted:#5a6373;
+    --text-soft:#7a8499;
+    --primary:#1e3a8a;
+    --primary-dark:#152a63;
+    --primary-light:#e8eef9;
+    --accent:#0a7a4a;
+    --accent-light:#dcfce7;
+    --warn:#b94a00;
+    --warn-light:#fef3c7;
+    --shadow:0 1px 3px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.04);
+    --shadow-md:0 4px 14px rgba(16,24,40,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+
+  .wrap{max-width:1240px;margin:0 auto;padding:24px 20px 40px}
+
+  /* Top header */
+  .top-header{
+    text-align:center;
+    margin-bottom:24px;
+  }
+  .top-header h1{
+    font-size:26px;font-weight:700;margin:0 0 10px;
+    color:var(--text);
+    letter-spacing:-.2px;
+  }
+  .top-header .firm{
+    font-size:13px;
+    color:var(--primary);
+    font-weight:600;
+    letter-spacing:.3px;
+  }
+  .top-header .firm .sep{
+    color:var(--text-soft);
+    margin:0 8px;
+    font-weight:400;
+  }
+  .top-header .firm .name{
+    color:var(--text-muted);
+    font-weight:500;
+  }
+
+  /* Main grid */
+  .main-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    align-items:start;
+  }
+  @media (max-width:980px){.main-grid{grid-template-columns:1fr}}
+
+  /* Card */
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+
+  /* Section */
+  .section{
+    padding:20px 22px;
+    border-bottom:1px solid var(--border);
+  }
+  .section:last-child{border-bottom:none}
+  .section-title{
+    font-size:14px;font-weight:700;
+    margin:0 0 16px;
+    display:flex;align-items:center;gap:10px;
+    color:var(--text);
+    text-transform:uppercase;
+    letter-spacing:.4px;
+  }
+  .section-title .num{
+    width:22px;height:22px;
+    background:var(--primary);
+    color:#fff;
+    border-radius:4px;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:12px;
+  }
+
+  /* Form grid */
+  .form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px 16px;
+  }
+  @media (max-width:520px){.form-grid{grid-template-columns:1fr}}
+  .form-grid .full{grid-column:1 / -1}
+
+  .field label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text);
+    margin-bottom:5px;
+  }
+  .field .hint{
+    display:block;
+    font-size:11px;
+    color:var(--text-soft);
+    margin-top:3px;
+    line-height:1.4;
+    font-weight:400;
+  }
+  .field input{
+    width:100%;
+    padding:9px 12px;
+    font-size:13.5px;
+    border:1px solid var(--border-strong);
+    border-radius:5px;
+    background:#fff;
+    color:var(--text);
+    font-family:inherit;
+    transition:border-color .15s,box-shadow .15s;
+    text-align:right;
+    font-variant-numeric:tabular-nums;
+    font-feature-settings:"tnum";
+  }
+  .field input:focus{
+    outline:none;
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(30,58,138,.10);
+  }
+  .field input::placeholder{color:#b8bec8}
+
+  /* Buttons */
+  .btn-row{
+    display:flex;gap:10px;flex-wrap:wrap;
+    padding:18px 22px;
+    background:var(--surface-alt);
+    border-top:1px solid var(--border);
+  }
+  .btn{
+    padding:10px 18px;
+    font-size:13px;font-weight:600;
+    border:1px solid var(--border-strong);
+    border-radius:5px;
+    background:#fff;color:var(--text);
+    cursor:pointer;
+    transition:all .15s;
+    font-family:inherit;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .btn:hover{background:#f0f2f5;border-color:#b8bfca}
+  .btn.primary{
+    background:var(--primary);
+    color:#fff;
+    border-color:var(--primary);
+    padding:10px 24px;
+  }
+  .btn.primary:hover{background:var(--primary-dark);border-color:var(--primary-dark)}
+  .btn.ghost{background:transparent;border-color:transparent;color:var(--text-muted)}
+  .btn.ghost:hover{background:#f0f2f5;color:var(--text)}
+
+  /* Results card */
+  .results-empty{
+    padding:80px 24px;
+    text-align:center;
+    color:var(--text-muted);
+  }
+  .results-empty .icon{
+    font-size:36px;
+    opacity:.3;
+    margin-bottom:14px;
+    display:block;
+  }
+  .results-empty p{margin:0;font-size:13px}
+  .results-empty strong{color:var(--text)}
+
+  .results-header{
+    background:var(--primary);
+    color:#fff;
+    padding:14px 22px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+  }
+  .results-header h2{
+    margin:0;font-size:14px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.4px;
+  }
+  .status-pill{
+    font-size:11px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.5px;
+    padding:4px 10px;
+    border-radius:11px;
+    background:rgba(255,255,255,.18);
+  }
+  .status-pill.ok{background:var(--accent-light);color:#166534}
+  .status-pill.warn{background:var(--warn-light);color:#854d0e}
+
+  .result-row{
+    display:flex;align-items:center;gap:14px;
+    padding:13px 22px;
+    border-bottom:1px solid #eef0f3;
+  }
+  .result-row:last-child{border-bottom:none}
+  .result-num{
+    flex-shrink:0;
+    width:26px;height:26px;
+    border-radius:50%;
+    background:#eef2f8;
+    color:var(--primary);
+    border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:12px;
+  }
+  .result-label{
+    flex:1;
+    font-size:13px;
+    color:var(--text);
+    line-height:1.4;
+  }
+  .result-value{
+    flex-shrink:0;
+    font-weight:700;
+    font-size:13.5px;
+    font-variant-numeric:tabular-nums;
+    color:var(--text);
+    text-align:right;
+  }
+  .result-value.muted{color:var(--text-muted);font-weight:600}
+
+  .result-row.final{
+    background:linear-gradient(180deg, var(--warn-light) 0%, #fff8e8 100%);
+    border-top:2px solid var(--warn);
+    border-bottom:none;
+  }
+  .result-row.final .result-num{
+    background:var(--warn);color:#fff;border-color:var(--warn);
+  }
+  .result-row.final .result-label{font-weight:700}
+  .result-row.final .result-value{color:var(--warn);font-size:15px}
+
+  /* Output actions row */
+  .output-actions{
+    padding:14px 22px;
+    background:var(--surface-alt);
+    border-top:1px solid var(--border);
+    display:flex;gap:8px;flex-wrap:wrap;
+  }
+
+  /* Footer */
+  .footer{
+    text-align:center;
+    margin-top:32px;
+    padding:20px 16px 0;
+    color:var(--text-soft);
+    font-size:11px;
+    line-height:1.7;
+    border-top:1px solid var(--border);
+  }
+  .footer strong{color:var(--text-muted)}
+  .footer a{color:var(--primary);text-decoration:none}
+  .footer a:hover{text-decoration:underline}
+
+  /* Print */
+  @media print{
+    body{background:#fff}
+    .wrap{padding:0;max-width:none}
+    .btn-row,.output-actions,.no-print{display:none !important}
+    .main-grid{grid-template-columns:1fr;gap:8px}
+    .card{box-shadow:none;break-inside:avoid;border:1px solid #ccc}
+    @page{margin:1.5cm}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- Top header -->
+  <div class="top-header">
+    <h1>Finansman Gider Kısıtlaması Hesaplama</h1>
+    <div class="firm">
+      DAMA YMM
+      <span class="sep">·</span>
+      <span class="name">Ömer Murat Uluat</span>
+    </div>
+  </div>
+
+  <!-- Main two-column grid -->
+  <div class="main-grid">
+
+    <!-- LEFT: Form -->
+    <div class="card">
+
+      <!-- Bilanço verileri -->
+      <div class="section">
+        <h2 class="section-title">
+          <span class="num">1</span>
+          Bilanço Verileri (Dönem Sonu)
+        </h2>
+        <div class="form-grid">
+          <div class="field">
+            <label>Öz Sermaye Tutarı <span class="hint" style="display:inline">(TL)</span></label>
+            <input type="text" id="ok" placeholder="0,00" inputmode="decimal">
+            <span class="hint">5XX hesap grubu toplamı (geçmiş yıl kâr/zararları dahil)</span>
+          </div>
+          <div class="field">
+            <label>Toplam Aktif Tutarı <span class="hint" style="display:inline">(TL)</span></label>
+            <input type="text" id="aktif" placeholder="0,00" inputmode="decimal">
+            <span class="hint">Bilanço aktif toplamı (dönen + duran varlıklar)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Finansman giderleri -->
+      <div class="section">
+        <h2 class="section-title">
+          <span class="num">2</span>
+          Finansman Giderleri
+        </h2>
+        <div class="form-grid">
+          <div class="field">
+            <label>780 Hesap — Finansman Giderleri <span class="hint" style="display:inline">(TL)</span></label>
+            <input type="text" id="fg-780" placeholder="0,00" inputmode="decimal">
+          </div>
+          <div class="field">
+            <label>660 Hesap — Kısa Vadeli Borçlanma <span class="hint" style="display:inline">(TL)</span></label>
+            <input type="text" id="fg-660" placeholder="0,00" inputmode="decimal">
+          </div>
+          <div class="field">
+            <label>661 Hesap — Uzun Vadeli Borçlanma <span class="hint" style="display:inline">(TL)</span></label>
+            <input type="text" id="fg-661" placeholder="0,00" inputmode="decimal">
+          </div>
+          <div class="field">
+            <label>656 Hesap — Kambiyo Zararları <span class="hint" style="display:inline">(TL)</span></label>
+            <input type="text" id="fg-656" placeholder="0,00" inputmode="decimal">
+            <span class="hint">Aynı kaynağa ait kur farkı gelirleriyle netleştirilmiş tutar</span>
+          </div>
+          <div class="field full">
+            <label>Diğer Finansman Gideri <span class="hint" style="display:inline">(TL)</span></label>
+            <input type="text" id="fg-diger" placeholder="0,00" inputmode="decimal">
+            <span class="hint">Komisyon, vade farkı, faktoring gideri vb.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="btn-row">
+        <button class="btn primary" id="calc-btn">
+          <span>▶</span> Hesapla
+        </button>
+        <button class="btn ghost" id="reset-btn">Formu Sıfırla</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: Results -->
+    <div class="card">
+      <div class="results-header">
+        <h2>📋 Hesaplama Sonuçları</h2>
+        <span id="result-status" class="status-pill" style="display:none"></span>
+      </div>
+
+      <div id="result-empty" class="results-empty">
+        <span class="icon">⊟</span>
+        <p>Sol taraftaki bilgileri girip <strong>Hesapla</strong> butonuna basınız.</p>
+      </div>
+
+      <div id="result-content" style="display:none">
+        <div id="results-list"></div>
+
+        <div class="output-actions no-print">
+          <button class="btn primary" onclick="window.print()">PDF / Yazdır</button>
+          <button class="btn" id="copy-btn">Özeti Kopyala</button>
+          <button class="btn" id="csv-btn">CSV İndir</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <strong>DAMA YMM</strong> — Yeminli Mali Müşavirlik · Ömer Murat Uluat<br>
+    Bu hesaplama programı bilgilendirme amaçlıdır. Mevzuat değişiklikleri için YMM ile değerlendirme önerilir.<br>
+    © 2026 DAMA YMM · <a href="https://damaymm.com">damaymm.com</a>
+  </div>
+
+</div>
+
+<script>
+const TR = new Intl.NumberFormat('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const TR_PCT = new Intl.NumberFormat('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:4,style:'percent'});
+
+function fmt(n){if(n===null||n===undefined||isNaN(n))return '—'; return TR.format(n)+' TL';}
+function fmtPct(n){if(n===null||n===undefined||isNaN(n))return '—'; return TR_PCT.format(n);}
+function parseNum(s){
+  if(!s)return 0;
+  s = String(s).trim().replace(/\s/g,'').replace(/\./g,'').replace(',','.');
+  const n = parseFloat(s);
+  return isNaN(n)?0:n;
+}
+
+document.querySelectorAll('input[inputmode="decimal"]').forEach(input=>{
+  input.addEventListener('blur',e=>{
+    const v = parseNum(e.target.value);
+    if(v) e.target.value = TR.format(v);
+  });
+  input.addEventListener('focus',e=>{
+    const v = parseNum(e.target.value);
+    if(v) e.target.value = String(v).replace('.',',');
+  });
+});
+
+function calculate(){
+  const okRaw = parseNum(document.getElementById('ok').value);
+  const aktif = parseNum(document.getElementById('aktif').value);
+  const fg780 = parseNum(document.getElementById('fg-780').value);
+  const fg660 = parseNum(document.getElementById('fg-660').value);
+  const fg661 = parseNum(document.getElementById('fg-661').value);
+  const fg656 = parseNum(document.getElementById('fg-656').value);
+  const fgDiger = parseNum(document.getElementById('fg-diger').value);
+
+  // Negatif öz sermaye (teknik iflas) durumunda hesaplamada 0 olarak alınır.
+  // Aksi halde "Aktif − Özsermaye" işlemi YK'yı şişirir ve aşan kısım yanlış büyür.
+  const ok = Math.max(0, okRaw);
+  const okNegatif = okRaw < 0;
+
+  const yk = aktif - ok;
+  const fgToplam = fg780 + fg660 + fg661 + fg656 + fgDiger;
+  const asan = yk > ok ? yk - ok : 0;
+  const oran = yk > 0 ? asan / yk : 0;
+  const isabet = fgToplam * oran;
+  const kkeg = isabet * 0.10;
+
+  const inScope = asan > 0;
+
+  return {
+    ok, okRaw, okNegatif, aktif, yk, asan, oran,
+    fg780, fg660, fg661, fg656, fgDiger, fgToplam,
+    isabet, kkeg, inScope
+  };
+}
+
+function render(r){
+  document.getElementById('result-empty').style.display = 'none';
+  document.getElementById('result-content').style.display = 'block';
+
+  const status = document.getElementById('result-status');
+  status.style.display = 'inline-block';
+
+  if(!r.inScope){
+    status.className = 'status-pill ok';
+    status.textContent = 'FGK YOK';
+  } else {
+    status.className = 'status-pill warn';
+    status.textContent = 'FGK VAR';
+  }
+
+  const okLabel = r.okNegatif
+    ? `Öz Sermaye Tutarı <span style="color:var(--text-soft);font-weight:400;font-size:11px">(girilen: ${fmt(r.okRaw)} — negatif değer hesaplamada 0 alınmıştır)</span>`
+    : 'Öz Sermaye Tutarı';
+
+  const rows = [
+    {n:1, label:okLabel, value:fmt(r.ok)},
+    {n:2, label:'Toplam Aktif', value:fmt(r.aktif), muted:true},
+    {n:3, label:'Yabancı Kaynak Toplamı (Aktif − Öz Sermaye)', value:fmt(r.yk)},
+    {n:4, label:'Öz Sermayeyi Aşan Yabancı Kaynak Tutarı (3−1)', value:fmt(r.asan)},
+    {n:5, label:'Aşan Kısmın Yabancı Kaynağa Oranı (4÷3)', value:fmtPct(r.oran)},
+    {n:6, label:'Toplam Finansman Gideri (780+660+661+656+Diğer)', value:fmt(r.fgToplam)},
+    {n:7, label:'Aşan Kısma İsabet Eden Finansman Gideri (6×5)', value:fmt(r.isabet)},
+    {n:8, label:'KKEG Olarak Dikkate Alınacak Tutar (7 × %10)', value:fmt(r.kkeg), final:true}
+  ];
+
+  document.getElementById('results-list').innerHTML = rows.map(row=>`
+    <div class="result-row${row.final?' final':''}">
+      <div class="result-num">${row.n}</div>
+      <div class="result-label">${row.label}</div>
+      <div class="result-value${row.muted?' muted':''}">${row.value}</div>
+    </div>
+  `).join('');
+
+  window.lastResult = r;
+}
+
+document.getElementById('calc-btn').addEventListener('click',()=>{
+  const r = calculate();
+  render(r);
+  if(window.innerWidth < 980){
+    document.querySelector('.results-header').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+});
+
+document.getElementById('reset-btn').addEventListener('click',()=>{
+  ['ok','aktif','fg-780','fg-660','fg-661','fg-656','fg-diger'].forEach(id=>{
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('result-content').style.display = 'none';
+  document.getElementById('result-empty').style.display = 'block';
+  document.getElementById('result-status').style.display = 'none';
+});
+
+document.getElementById('copy-btn').addEventListener('click',async()=>{
+  const r = window.lastResult;
+  if(!r) return;
+  const text =
+`FİNANSMAN GİDER KISITLAMASI HESABI
+${'-'.repeat(60)}
+
+1) Öz Sermaye Tutarı                              : ${fmt(r.ok)}
+2) Toplam Aktif                                   : ${fmt(r.aktif)}
+3) Yabancı Kaynak Toplamı                         : ${fmt(r.yk)}
+4) Öz Sermayeyi Aşan Yabancı Kaynak               : ${fmt(r.asan)}
+5) Aşma Oranı                                     : ${fmtPct(r.oran)}
+6) Toplam Finansman Gideri                        : ${fmt(r.fgToplam)}
+7) Aşan Kısma İsabet Eden Finansman Gideri        : ${fmt(r.isabet)}
+8) KKEG (Beyannamede İlave)                       : ${fmt(r.kkeg)}
+
+DAMA YMM — Ömer Murat Uluat`;
+  try {
+    await navigator.clipboard.writeText(text);
+    const btn = document.getElementById('copy-btn');
+    const orig = btn.textContent;
+    btn.textContent = '✓ Kopyalandı';
+    setTimeout(()=>btn.textContent=orig,1500);
+  } catch(e){ alert(text); }
+});
+
+document.getElementById('csv-btn').addEventListener('click',()=>{
+  const r = window.lastResult;
+  if(!r) return;
+  const rows = [
+    ['DAMA YMM - Finansman Gider Kısıtlaması Hesabı'],
+    [],
+    ['Sıra','Açıklama','Tutar (TL)'],
+    [1,'Öz Sermaye Tutarı',TR.format(r.ok)],
+    [2,'Toplam Aktif',TR.format(r.aktif)],
+    [3,'Yabancı Kaynak Toplamı',TR.format(r.yk)],
+    [4,'Öz Sermayeyi Aşan Yabancı Kaynak',TR.format(r.asan)],
+    [5,'Aşma Oranı',(r.oran*100).toFixed(4)+'%'],
+    [6,'Toplam Finansman Gideri',TR.format(r.fgToplam)],
+    [7,'Aşan Kısma İsabet Eden FG',TR.format(r.isabet)],
+    [8,'KKEG Tutarı',TR.format(r.kkeg)]
+  ];
+  const csv = '\uFEFF' + rows.map(row=>row.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(';')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'FGK_Hesaplama.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
