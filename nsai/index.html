@@ -4,235 +4,282 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nakit Sermaye Artırımı İndirimi Hesaplama | DAMA YMM</title>
-<meta name="description" content="KVK 10/1-ı kapsamında nakit sermaye artırımı indirimi (NSAİ) hesaplama aracı. Aylık kıst, önceki yıl sermaye, devreden tutar yeniden değerlemeli.">
+<meta name="description" content="KVK 10/1-ı kapsamında nakit sermaye artırımı indirimi (NSAİ) hesaplama aracı.">
 <style>
-  :root{
-    --bg:#f4f6fa;
-    --surface:#ffffff;
-    --surface-alt:#f8f9fc;
-    --border:#e3e7ee;
-    --border-strong:#d0d6e0;
-    --text:#080d15;
-    --text-muted:#2d3548;
-    --text-soft:#4a5266;
-    --primary:#1e3a8a;
-    --primary-dark:#152a63;
-    --primary-light:#e8eef9;
-    --accent:#0a7a4a;
-    --accent-light:#dcfce7;
-    --warn:#b94a00;
-    --warn-light:#fef3c7;
-    --teal:#0e7490;
-    --teal-light:#e0f2fe;
-    --shadow:0 1px 3px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.04);
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
-  .wrap{max-width:1240px;margin:0 auto;padding:24px 20px 40px}
-  .top-header{text-align:center;margin-bottom:24px}
-  .top-header h1{font-size:30px;font-weight:700;margin:0 0 12px;color:var(--text);letter-spacing:-.3px}
-  .top-header .firm{font-size:15px;color:var(--primary);font-weight:700;letter-spacing:.3px}
-  .top-header .firm .sep{color:var(--text-muted);margin:0 8px;font-weight:400}
-  .top-header .firm .name{color:var(--text);font-weight:600}
-  .main-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
-  @media (max-width:980px){.main-grid{grid-template-columns:1fr}}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
-  .section{padding:20px 22px;border-bottom:1px solid var(--border)}
-  .section:last-child{border-bottom:none}
-  .section-title{font-size:16px;font-weight:700;margin:0 0 18px;display:flex;align-items:center;gap:10px;color:var(--text);text-transform:uppercase;letter-spacing:.4px}
-  .section-title .num{width:26px;height:26px;background:var(--primary);color:#fff;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
-  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
-  @media (max-width:520px){.form-grid{grid-template-columns:1fr}}
-  .form-grid .full{grid-column:1 / -1}
-  .field label{display:block;font-size:14.5px;font-weight:700;color:var(--text);margin-bottom:6px}
-  .field .hint{display:block;font-size:13px;color:var(--text-muted);margin-top:5px;line-height:1.5;font-weight:500}
-  .field input, .field select{width:100%;padding:11px 14px;font-size:15.5px;font-weight:600;border:1px solid var(--border-strong);border-radius:5px;background:#fff;color:var(--text);font-family:inherit;transition:border-color .15s,box-shadow .15s}
-  .field input{text-align:right;font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
-  .field input:focus, .field select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(30,58,138,.10)}
-  .field input::placeholder{color:#b8bec8}
-  .radio-group{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-  .radio-option{position:relative}
-  .radio-option input[type="radio"]{position:absolute;opacity:0;pointer-events:none}
-  .radio-option label{display:block;padding:12px 8px;font-size:14px;font-weight:700;text-align:center;border:2px solid var(--border-strong);border-radius:6px;background:#fff;color:var(--text-muted);cursor:pointer;transition:all .15s}
-  .radio-option input:checked + label{background:var(--primary-light);border-color:var(--primary);color:var(--primary)}
-  .radio-option label:hover{border-color:var(--primary)}
-  .radio-option .sub{display:block;font-size:11px;font-weight:500;margin-top:2px;color:var(--text-soft)}
-  .radio-option input:checked + label .sub{color:var(--primary)}
-  .section.cari{background:#fafbfd}
-  .section.eski{background:#f0f9ff}
-  .section.eski .section-title .num{background:var(--teal)}
-  .section.devreden{background:#fff8f0}
-  .section.devreden .section-title .num{background:var(--warn)}
-  .ay-tablo{display:grid;grid-template-columns:1fr;gap:8px}
-  .ay-row{display:flex;align-items:center;gap:14px;padding:10px 14px;background:#fff;border:1px solid var(--border);border-radius:6px;transition:all .15s}
-  .ay-row:has(input:not(:placeholder-shown)){background:var(--primary-light);border-color:var(--primary)}
-  .ay-label{flex-shrink:0;width:80px;font-size:14.5px;font-weight:700;color:var(--text)}
-  .ay-kist{flex-shrink:0;width:48px;font-size:12.5px;font-weight:600;color:var(--text-soft);text-align:center}
-  .ay-row:has(input:not(:placeholder-shown)) .ay-kist{color:var(--primary)}
-  .ay-input{flex:1;width:100%;padding:10px 14px;font-size:15.5px;font-weight:600;border:1px solid var(--border-strong);border-radius:5px;background:#fff;color:var(--text);text-align:right;font-variant-numeric:tabular-nums;font-feature-settings:"tnum";font-family:inherit}
-  .ay-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(30,58,138,.10)}
-  .ay-input::placeholder{color:#b8bec8}
-  .ay-toplam-row{margin-top:14px;padding:12px 14px;background:var(--primary);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:space-between}
-  .ay-toplam-row strong{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
-  .ay-toplam-row .deger{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
-  .btn-row{display:flex;gap:10px;flex-wrap:wrap;padding:18px 22px;background:var(--surface-alt);border-top:1px solid var(--border)}
-  .btn{padding:11px 20px;font-size:14px;font-weight:700;border:1px solid var(--border-strong);border-radius:5px;background:#fff;color:var(--text);cursor:pointer;transition:all .15s;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
-  .btn:hover{background:#f0f2f5;border-color:#b8bfca}
-  .btn.primary{background:var(--primary);color:#fff;border-color:var(--primary);padding:10px 24px}
-  .btn.primary:hover{background:var(--primary-dark);border-color:var(--primary-dark)}
-  .btn.ghost{background:transparent;border-color:transparent;color:var(--text-muted)}
-  .btn.ghost:hover{background:#f0f2f5;color:var(--text)}
-  .results-empty{padding:80px 24px;text-align:center;color:var(--text-muted)}
-  .results-empty .icon{font-size:36px;opacity:.4;margin-bottom:14px;display:block}
-  .results-empty p{margin:0;font-size:14px;font-weight:500}
-  .results-empty strong{color:var(--text);font-weight:700}
-  .results-header{background:var(--primary);color:#fff;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-  .results-header h2{margin:0;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-  .status-pill{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:5px 11px;border-radius:11px;background:rgba(255,255,255,.18)}
-  .result-section-header{padding:11px 22px;background:var(--surface-alt);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:1px solid var(--border);border-top:1px solid var(--border)}
-  .result-section-header.devreden{background:#fff8f0;color:var(--warn)}
-  .result-section-header.cari{background:#fafbfd;color:var(--primary)}
-  .result-section-header.eski{background:#f0f9ff;color:var(--teal)}
-  .result-section-header.detay{background:#f4f6fa;color:var(--text-muted);font-size:11px}
-  .result-row{display:flex;align-items:center;gap:14px;padding:14px 22px;border-bottom:1px solid #eef0f3}
-  .result-row:last-child{border-bottom:none}
-  .result-row.compact{padding:10px 22px;font-size:14px}
-  .result-num{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--primary-light);color:var(--primary);border:1px solid #c8d3eb;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
-  .result-row.dev .result-num{background:#fff3e0;color:var(--warn);border-color:#f7cba0}
-  .result-row.eski .result-num{background:var(--teal-light);color:var(--teal);border-color:#a5cae0}
-  .result-row.compact .result-num{width:24px;height:24px;font-size:12px;background:#f0f3f8;border-color:#dee3eb;color:var(--text-muted)}
-  .result-label{flex:1;font-size:15px;font-weight:500;color:var(--text);line-height:1.45}
-  .result-row.compact .result-label{font-size:13.5px;color:var(--text-muted)}
-  .result-row.compact .result-label strong{color:var(--text);font-weight:700}
-  .result-value{flex-shrink:0;font-weight:700;font-size:15.5px;font-variant-numeric:tabular-nums;color:var(--text);text-align:right}
-  .result-row.compact .result-value{font-size:14px;color:var(--text-muted)}
-  .result-value.muted{color:var(--text-muted);font-weight:600}
-  .result-row.subtotal{background:var(--surface-alt);border-top:1px dashed var(--border-strong)}
-  .result-row.subtotal .result-label{font-weight:700}
-  .result-row.subtotal .result-value{color:var(--primary)}
-  .result-row.subtotal.dev .result-value{color:var(--warn)}
-  .result-row.subtotal.eski .result-value{color:var(--teal)}
-  .result-row.final{background:linear-gradient(180deg, var(--accent-light) 0%, #e8f8ee 100%);border-top:2px solid var(--accent);border-bottom:none;padding:18px 22px}
-  .result-row.final .result-num{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .result-row.final .result-label{font-weight:700;color:#0a3d24}
-  .result-row.final .result-value{color:var(--accent);font-size:18px}
-  .output-actions{padding:14px 22px;background:var(--surface-alt);border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap}
-  .footer{text-align:center;margin-top:32px;padding:20px 16px 0;color:var(--text-muted);font-size:12px;line-height:1.7;border-top:1px solid var(--border);font-weight:500}
-  .footer strong{color:var(--text);font-weight:700}
-  .footer a{color:var(--primary);text-decoration:none;font-weight:600}
-  .footer a:hover{text-decoration:underline}
-  @media print{body{background:#fff}.wrap{padding:0;max-width:none}.btn-row,.output-actions,.no-print{display:none !important}.main-grid{grid-template-columns:1fr;gap:8px}.card{box-shadow:none;break-inside:avoid;border:1px solid #ccc}@page{margin:1.5cm}}
+:root{--bg:#f4f6fa;--surface:#fff;--surface-alt:#f8f9fc;--border:#e3e7ee;--border-strong:#d0d6e0;--text:#080d15;--text-muted:#2d3548;--text-soft:#4a5266;--primary:#1e3a8a;--primary-dark:#152a63;--primary-light:#e8eef9;--accent:#0a7a4a;--accent-light:#dcfce7;--warn:#b94a00;--warn-light:#fef3c7;--teal:#0e7490;--teal-light:#e0f2fe;--shadow:0 1px 3px rgba(16,24,40,.06),0 1px 2px rgba(16,24,40,.04)}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
+.wrap{max-width:1240px;margin:0 auto;padding:24px 20px 40px}
+.top-header{text-align:center;margin-bottom:24px}
+.top-header h1{font-size:30px;font-weight:700;margin:0 0 12px;color:var(--text);letter-spacing:-.3px}
+.top-header .firm{font-size:15px;color:var(--primary);font-weight:700}
+.top-header .firm .sep{color:var(--text-muted);margin:0 8px;font-weight:400}
+.top-header .firm .name{color:var(--text);font-weight:600}
+.main-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+@media(max-width:980px){.main-grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
+.section{padding:20px 22px;border-bottom:1px solid var(--border)}
+.section:last-child{border-bottom:none}
+.section-title{font-size:16px;font-weight:700;margin:0 0 18px;display:flex;align-items:center;gap:10px;color:var(--text);text-transform:uppercase;letter-spacing:.4px}
+.section-title .num{width:26px;height:26px;background:var(--primary);color:#fff;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
+@media(max-width:520px){.form-grid{grid-template-columns:1fr}}
+.form-grid .full{grid-column:1/-1}
+.field label{display:block;font-size:14.5px;font-weight:700;color:var(--text);margin-bottom:6px}
+.field .hint{display:block;font-size:13px;color:var(--text-muted);margin-top:5px;line-height:1.5;font-weight:500}
+.field input,.field select{width:100%;padding:11px 14px;font-size:15.5px;font-weight:600;border:1px solid var(--border-strong);border-radius:5px;background:#fff;color:var(--text);font-family:inherit;transition:border-color .15s,box-shadow .15s}
+.field input{text-align:right;font-variant-numeric:tabular-nums}
+.field input:focus,.field select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(30,58,138,.10)}
+.field input::placeholder{color:#b8bec8}
+.radio-group{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.radio-option{position:relative}
+.radio-option input[type="radio"]{position:absolute;opacity:0;pointer-events:none}
+.radio-option label{display:block;padding:12px 8px;font-size:14px;font-weight:700;text-align:center;border:2px solid var(--border-strong);border-radius:6px;background:#fff;color:var(--text-muted);cursor:pointer;transition:all .15s}
+.radio-option input:checked+label{background:var(--primary-light);border-color:var(--primary);color:var(--primary)}
+.radio-option label:hover{border-color:var(--primary)}
+.radio-option .sub{display:block;font-size:11px;font-weight:500;margin-top:2px;color:var(--text-soft)}
+.radio-option input:checked+label .sub{color:var(--primary)}
+.section.cari{background:#fafbfd}
+.section.eski{background:#f0f9ff}
+.section.eski .section-title .num{background:var(--teal)}
+.section.devreden{background:#fff8f0}
+.section.devreden .section-title .num{background:var(--warn)}
+.ay-tablo{display:grid;grid-template-columns:1fr;gap:8px}
+.ay-row{display:flex;align-items:center;gap:14px;padding:10px 14px;background:#fff;border:1px solid var(--border);border-radius:6px;transition:all .15s}
+.ay-row.dolu{background:var(--primary-light);border-color:var(--primary)}
+.ay-label{flex-shrink:0;width:80px;font-size:14.5px;font-weight:700;color:var(--text)}
+.ay-kist{flex-shrink:0;width:48px;font-size:12.5px;font-weight:600;color:var(--text-soft);text-align:center}
+.ay-row.dolu .ay-kist{color:var(--primary)}
+.ay-input{flex:1;width:100%;padding:10px 14px;font-size:15.5px;font-weight:600;border:1px solid var(--border-strong);border-radius:5px;background:#fff;color:var(--text);text-align:right;font-variant-numeric:tabular-nums;font-family:inherit}
+.ay-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(30,58,138,.10)}
+.ay-input::placeholder{color:#b8bec8}
+.ay-toplam-row{margin-top:14px;padding:12px 14px;background:var(--primary);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:space-between}
+.ay-toplam-row strong{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.ay-toplam-row .deger{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;padding:18px 22px;background:var(--surface-alt);border-top:1px solid var(--border)}
+.btn{padding:11px 20px;font-size:14px;font-weight:700;border:1px solid var(--border-strong);border-radius:5px;background:#fff;color:var(--text);cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:#f0f2f5;border-color:#b8bfca}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary);padding:10px 24px}
+.btn.primary:hover{background:var(--primary-dark);border-color:var(--primary-dark)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--text-muted)}
+.btn.ghost:hover{background:#f0f2f5;color:var(--text)}
+.results-empty{padding:80px 24px;text-align:center;color:var(--text-muted)}
+.results-empty .icon{font-size:36px;opacity:.4;margin-bottom:14px;display:block}
+.results-empty p{margin:0;font-size:14px;font-weight:500}
+.results-empty strong{color:var(--text);font-weight:700}
+.results-header{background:var(--primary);color:#fff;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.results-header h2{margin:0;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.status-pill{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:5px 11px;border-radius:11px;background:rgba(255,255,255,.18)}
+.result-section-header{padding:11px 22px;background:var(--surface-alt);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:1px solid var(--border);border-top:1px solid var(--border)}
+.result-section-header.devreden{background:#fff8f0;color:var(--warn)}
+.result-section-header.cari{background:#fafbfd;color:var(--primary)}
+.result-section-header.eski{background:#f0f9ff;color:var(--teal)}
+.result-row{display:flex;align-items:center;gap:14px;padding:14px 22px;border-bottom:1px solid #eef0f3}
+.result-row:last-child{border-bottom:none}
+.result-row.compact{padding:10px 22px;font-size:14px}
+.result-num{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--primary-light);color:var(--primary);border:1px solid #c8d3eb;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.result-row.dev .result-num{background:#fff3e0;color:var(--warn);border-color:#f7cba0}
+.result-row.eski .result-num{background:var(--teal-light);color:var(--teal);border-color:#a5cae0}
+.result-row.compact .result-num{width:24px;height:24px;font-size:12px;background:#f0f3f8;border-color:#dee3eb;color:var(--text-muted)}
+.result-label{flex:1;font-size:15px;font-weight:500;color:var(--text);line-height:1.45}
+.result-row.compact .result-label{font-size:13.5px;color:var(--text-muted)}
+.result-row.compact .result-label strong{color:var(--text);font-weight:700}
+.result-value{flex-shrink:0;font-weight:700;font-size:15.5px;font-variant-numeric:tabular-nums;color:var(--text);text-align:right}
+.result-row.compact .result-value{font-size:14px;color:var(--text-muted)}
+.result-row.subtotal{background:var(--surface-alt);border-top:1px dashed var(--border-strong)}
+.result-row.subtotal .result-label{font-weight:700}
+.result-row.subtotal .result-value{color:var(--primary)}
+.result-row.subtotal.dev .result-value{color:var(--warn)}
+.result-row.subtotal.eski .result-value{color:var(--teal)}
+.result-row.final{background:linear-gradient(180deg,var(--accent-light) 0%,#e8f8ee 100%);border-top:2px solid var(--accent);border-bottom:none;padding:18px 22px}
+.result-row.final .result-num{background:var(--accent);color:#fff;border-color:var(--accent)}
+.result-row.final .result-label{font-weight:700;color:#0a3d24}
+.result-row.final .result-value{color:var(--accent);font-size:18px}
+.output-actions{padding:14px 22px;background:var(--surface-alt);border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap}
+.footer{text-align:center;margin-top:32px;padding:20px 16px 0;color:var(--text-muted);font-size:12px;line-height:1.7;border-top:1px solid var(--border);font-weight:500}
+.footer strong{color:var(--text);font-weight:700}
+.footer a{color:var(--primary);text-decoration:none;font-weight:600}
+@media print{body{background:#fff}.wrap{padding:0;max-width:none}.btn-row,.output-actions,.no-print{display:none!important}.main-grid{grid-template-columns:1fr;gap:8px}.card{box-shadow:none;border:1px solid #ccc}@page{margin:1.5cm}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top-header">
-    <h1>Nakit Sermaye Artırımı İndirimi</h1>
-    <div class="firm">DAMA YMM <span class="sep">·</span> <span class="name">Ömer Murat Uluat</span></div>
-  </div>
-  <div class="main-grid">
-    <div class="card">
-      <div class="section">
-        <h2 class="section-title"><span class="num">1</span> Hesap Dönemi & Genel Parametreler</h2>
-        <div class="form-grid">
-          <div class="field">
-            <label>Hesap Dönemi (Yıl)</label>
-            <select id="hesap-donemi" style="text-align:left">
-              <option value="2025" selected>2025</option>
-              <option value="2026">2026</option>
-              <option value="2027">2027</option>
-              <option value="2028">2028</option>
-              <option value="2029">2029</option>
-              <option value="2030">2030</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>İndirim Oranı</label>
-            <div class="radio-group">
-              <div class="radio-option"><input type="radio" name="oran" id="oran-50" value="50" checked><label for="oran-50">%50<span class="sub">Genel</span></label></div>
-              <div class="radio-option"><input type="radio" name="oran" id="oran-75" value="75"><label for="oran-75">%75<span class="sub">Halka A.</span></label></div>
-              <div class="radio-option"><input type="radio" name="oran" id="oran-100" value="100"><label for="oran-100">%100<span class="sub">YTB</span></label></div>
-            </div>
-          </div>
-          <div class="field full">
-            <label>TCMB Ticari Kredi Faiz Oranı <span class="hint" style="display:inline">(%)</span></label>
-            <input type="text" id="faiz" placeholder="0,00" inputmode="decimal">
-            <span class="hint">Cari yıl için TCMB tarafından açıklanan TL ticari kredi ağırlıklı yıllık ortalama faiz oranı</span>
-          </div>
-        </div>
-      </div>
-      <div class="section cari">
-        <h2 class="section-title"><span class="num">2</span> Cari Yıl Aylık Sermaye Ödemeleri</h2>
-        <p style="margin:0 0 14px;font-size:12px;color:var(--text-muted);line-height:1.5">Her ay için <strong>fiilen ödenen</strong> nakdi sermaye tutarını yazın. Her ödeme, kendi ayından yıl sonuna kadar olan kıst dönem üzerinden ayrı hesaplanır. Boş aylar 0 sayılır.</p>
-        <div class="ay-tablo" id="ay-tablo"></div>
-        <div class="ay-toplam-row"><strong>Cari Yıl Toplam Sermaye</strong><span class="deger" id="ay-toplam">0,00 TL</span></div>
-      </div>
-      <div class="section eski">
-        <h2 class="section-title"><span class="num">3</span> Önceki Yıllardan Gelen Sermaye Ödemeleri</h2>
-        <div class="form-grid">
-          <div class="field full">
-            <label>Önceki Yıllarda Yapılmış Toplam Sermaye Ödemesi <span class="hint" style="display:inline">(TL)</span></label>
-            <input type="text" id="eski-sermaye" placeholder="0,00" inputmode="decimal">
-            <span class="hint">Önceki hesap dönemlerinde yapılmış ve halen indirim hakkı veren toplam nakdi sermaye ödemesi tutarı. Cari yıl faizi ile <strong>tam yıl (12/12)</strong> üzerinden hesaplanır.</span>
-          </div>
-        </div>
-      </div>
-      <div class="section devreden">
-        <h2 class="section-title"><span class="num">4</span> Devreden İndirim & Yeniden Değerleme</h2>
-        <div class="form-grid">
-          <div class="field">
-            <label>Önceki Yıllardan Devreden İndirim Tutarı <span class="hint" style="display:inline">(TL)</span></label>
-            <input type="text" id="devreden" placeholder="0,00" inputmode="decimal">
-            <span class="hint">Önceki yıllarda hesaplanıp kazanç yetersizliği nedeniyle indirilemeyen NSAİ tutarı</span>
-          </div>
-          <div class="field">
-            <label>Yeniden Değerleme Oranı <span class="hint" style="display:inline">(%)</span></label>
-            <input type="text" id="ydo" placeholder="0,00" inputmode="decimal">
-            <span class="hint">Devreden tutara uygulanacak yeniden değerleme/endeksleme oranı (yoksa 0 yazın)</span>
-          </div>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn primary" id="calc-btn"><span>▶</span> Hesapla</button>
-        <button class="btn ghost" id="reset-btn">Formu Sıfırla</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="results-header">
-        <h2>📋 Hesaplama Sonuçları</h2>
-        <span id="result-status" class="status-pill" style="display:none"></span>
-      </div>
-      <div id="result-empty" class="results-empty">
-        <span class="icon">⊟</span>
-        <p>Sol taraftaki bilgileri girip <strong>Hesapla</strong> butonuna basınız.</p>
-      </div>
-      <div id="result-content" style="display:none">
-        <div id="results-list"></div>
-        <div class="output-actions no-print">
-          <button class="btn primary" onclick="window.print()">PDF / Yazdır</button>
-          <button class="btn" id="copy-btn">Özeti Kopyala</button>
-          <button class="btn" id="csv-btn">CSV İndir</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="footer">
-    <strong>DAMA YMM</strong> — Yeminli Mali Müşavirlik · Ömer Murat Uluat<br>
-    Bu hesaplama programı bilgilendirme amaçlıdır. Mevzuat değişiklikleri için YMM ile değerlendirme önerilir.<br>
-    © 2026 DAMA YMM · <a href="https://damaymm.com">damaymm.com</a>
-  </div>
+<div class="top-header">
+<h1>Nakit Sermaye Artırımı İndirimi</h1>
+<div class="firm">DAMA YMM <span class="sep">·</span> <span class="name">Ömer Murat Uluat</span></div>
+</div>
+<div class="main-grid">
+<div class="card">
+<div class="section">
+<h2 class="section-title"><span class="num">1</span> Hesap Dönemi & Genel Parametreler</h2>
+<div class="form-grid">
+<div class="field"><label>Hesap Dönemi (Yıl)</label><select id="hesap-donemi" style="text-align:left"><option value="2025" selected>2025</option><option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option></select></div>
+<div class="field"><label>İndirim Oranı</label><div class="radio-group">
+<div class="radio-option"><input type="radio" name="oran" id="oran-50" value="50" checked><label for="oran-50">%50<span class="sub">Genel</span></label></div>
+<div class="radio-option"><input type="radio" name="oran" id="oran-75" value="75"><label for="oran-75">%75<span class="sub">Halka A.</span></label></div>
+<div class="radio-option"><input type="radio" name="oran" id="oran-100" value="100"><label for="oran-100">%100<span class="sub">YTB</span></label></div>
+</div></div>
+<div class="field full"><label>TCMB Ticari Kredi Faiz Oranı <span class="hint" style="display:inline">(%)</span></label><input type="text" id="faiz" placeholder="0,00" inputmode="decimal"><span class="hint">Cari yıl için TCMB tarafından açıklanan TL ticari kredi ağırlıklı yıllık ortalama faiz oranı</span></div>
+</div>
+</div>
+<div class="section cari">
+<h2 class="section-title"><span class="num">2</span> Cari Yıl Aylık Sermaye Ödemeleri</h2>
+<p style="margin:0 0 14px;font-size:13px;color:var(--text-muted);line-height:1.5">Her ay için <strong>fiilen ödenen</strong> nakdi sermaye tutarını yazın. Her ödeme, kendi ayından yıl sonuna kadar olan kıst dönem üzerinden ayrı hesaplanır. Boş aylar 0 sayılır.</p>
+<div class="ay-tablo">
+<div class="ay-row"><span class="ay-label">Ocak</span><span class="ay-kist">12/12</span><input type="text" class="ay-input" data-ay="1" data-kist="12" placeholder="0,00" inputmode="decimal"></div>
+<div class="ay-row"><span class="ay-label">Şubat</span><span class="ay-kist">11/12</span><input type="text" class="ay-input" data-ay="2" data-kist="11" placeholder="0,00" inputmode="decimal"></div>
+<div class="ay-row"><span class="ay-label">Mart</span><span class="ay-kist">10/12</span><input type="text" class="ay-input" data-ay="3" data-kist="10" placeholder="0,00" inputmode="decimal"></div>
+<div class="ay-row"><span class="ay-label">Nisan</span><span class="ay-kist">9/12</span><input type="text" class="ay-input" data-ay="4" data-kist="9" placeholder="0,00" inputmode="decimal"></div>
+<div class="ay-row"><span class="ay-label">Mayıs</span><span class="ay-kist">8/12</span><input type="text" class="ay-input" data-ay="5" data-kist="8" placeholder="0,00" inputmode="decimal"></div>
+<div class="ay-row"><span class="ay-label">Haziran</span><span class="ay-kist">7/12</span><input type="text" class="ay-input" data-ay="6" data-kist="7" placeholder="0,00" inputmode="decimal"></div>
+<div class="ay-row"><span class="ay-label">Temmuz</span><span class="ay-kist">6/12</span><input type="text" class="ay-input" data-ay="7" data-kist="6" placeholder="0,00" inputmode="decimal"></div>
+<div class="ay-row"><span class="ay-label">Ağustos</span><span class="ay-kist">5/12</span><input type="text" class="ay-input" data-ay="8" data-kist="5" placeholder="0,00" inputmode="decimal"></div>
+<div class="ay-row"><span class="ay-label">Eylül</span><span class="ay-kist">4/12</span><input type="text" class="ay-input" data-ay="9" data-kist="4" placeholder="0,00" inputmode="decimal"></div>
+<div class="ay-row"><span class="ay-label">Ekim</span><span class="ay-kist">3/12</span><input type="text" class="ay-input" data-ay="10" data-kist="3" placeholder="0,00" inputmode="decimal"></div>
+<div class="ay-row"><span class="ay-label">Kasım</span><span class="ay-kist">2/12</span><input type="text" class="ay-input" data-ay="11" data-kist="2" placeholder="0,00" inputmode="decimal"></div>
+<div class="ay-row"><span class="ay-label">Aralık</span><span class="ay-kist">1/12</span><input type="text" class="ay-input" data-ay="12" data-kist="1" placeholder="0,00" inputmode="decimal"></div>
+</div>
+<div class="ay-toplam-row"><strong>Cari Yıl Toplam Sermaye</strong><span class="deger" id="ay-toplam">0,00 TL</span></div>
+</div>
+<div class="section eski">
+<h2 class="section-title"><span class="num">3</span> Önceki Yıllardan Gelen Sermaye Ödemeleri</h2>
+<div class="form-grid">
+<div class="field full"><label>Önceki Yıllarda Yapılmış Toplam Sermaye Ödemesi <span class="hint" style="display:inline">(TL)</span></label><input type="text" id="eski-sermaye" placeholder="0,00" inputmode="decimal"><span class="hint">Önceki hesap dönemlerinde yapılmış ve halen indirim hakkı veren toplam nakdi sermaye ödemesi tutarı. Cari yıl faizi ile <strong>tam yıl (12/12)</strong> üzerinden hesaplanır.</span></div>
+</div>
+</div>
+<div class="section devreden">
+<h2 class="section-title"><span class="num">4</span> Devreden İndirim & Yeniden Değerleme</h2>
+<div class="form-grid">
+<div class="field"><label>Önceki Yıllardan Devreden İndirim Tutarı <span class="hint" style="display:inline">(TL)</span></label><input type="text" id="devreden" placeholder="0,00" inputmode="decimal"><span class="hint">Önceki yıllarda hesaplanıp kazanç yetersizliği nedeniyle indirilemeyen NSAİ tutarı</span></div>
+<div class="field"><label>Yeniden Değerleme Oranı <span class="hint" style="display:inline">(%)</span></label><input type="text" id="ydo" placeholder="0,00" inputmode="decimal"><span class="hint">Devreden tutara uygulanacak yeniden değerleme/endeksleme oranı (yoksa 0 yazın)</span></div>
+</div>
+</div>
+<div class="btn-row">
+<button class="btn primary" id="calc-btn"><span>▶</span> Hesapla</button>
+<button class="btn ghost" id="reset-btn">Formu Sıfırla</button>
+</div>
+</div>
+<div class="card">
+<div class="results-header"><h2>📋 Hesaplama Sonuçları</h2><span id="result-status" class="status-pill" style="display:none"></span></div>
+<div id="result-empty" class="results-empty"><span class="icon">⊟</span><p>Sol taraftaki bilgileri girip <strong>Hesapla</strong> butonuna basınız.</p></div>
+<div id="result-content" style="display:none">
+<div id="results-list"></div>
+<div class="output-actions no-print">
+<button class="btn primary" onclick="window.print()">PDF / Yazdır</button>
+<button class="btn" id="copy-btn">Özeti Kopyala</button>
+<button class="btn" id="csv-btn">CSV İndir</button>
+</div>
+</div>
+</div>
+</div>
+<div class="footer">
+<strong>DAMA YMM</strong> — Yeminli Mali Müşavirlik · Ömer Murat Uluat<br>
+Bu hesaplama programı bilgilendirme amaçlıdır. Mevzuat değişiklikleri için YMM ile değerlendirme önerilir.<br>
+© 2026 DAMA YMM · <a href="https://damaymm.com">damaymm.com</a>
+</div>
 </div>
 <script>
 const TR=new Intl.NumberFormat('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const TR_PCT=new Intl.NumberFormat('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:4,style:'percent'});
+const AYLAR=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
 function fmt(n){if(n===null||n===undefined||isNaN(n))return '—';return TR.format(n)+' TL';}
 function fmtPct(n){if(n===null||n===undefined||isNaN(n))return '—';return TR_PCT.format(n);}
 function parseNum(s){if(!s)return 0;s=String(s).trim().replace(/\s/g,'').replace(/\./g,'').replace(',','.');const n=parseFloat(s);return isNaN(n)?0:n;}
-const AYLAR=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-const ayTablo=document.getElementById('ay-tablo');
-AYLAR.forEach((ay,i)=>{const kistAy=12-i;const div=document.createElement('div');div.className='ay-row';div.innerHTML=`<span class="ay-label">${ay}</span><span class="ay-kist">${kistAy}/12</span><input type="text" class="ay-input" data-ay="${i+1}" data-kist="${kistAy}" placeholder="0,00" inputmode="decimal">`;ayTablo.appendChild(div);});
-function ayToplamGuncelle(){let toplam=0;document.querySelectorAll('.ay-input').forEach(inp=>{toplam+=parseNum(inp.value);});document.getElementById('ay-toplam').textContent=fmt(toplam);}
-document.querySelectorAll('input[inputmode="decimal"]').forEach(input=>{input.addEventListener('blur',e=>{const v=parseNum(e.target.value);if(v)e.target.value=TR.format(v);if(e.target.classList.contains('ay-input'))ayToplamGuncelle();});input.addEventListener('focus',e=>{const v=parseNum(e.target.value);if(v)e.target.value=String(v).replace('.',',');});input.addEventListener('input',e=>{if(e.target.classList.contains('ay-input'))ayToplamGuncelle();});});
-function calculate(){const hesapDonemi=document.getElementById('hesap-donemi').value;const oranYuzde=parseInt(document.querySelector('input[name="oran"]:checked').value);const faizYuzde=parseNum(document.getElementById('faiz').value);const eskiSermaye=parseNum(document.getElementById('eski-sermaye').value);const devreden=parseNum(document.getElementById('devreden').value);const ydo=parseNum(document.getElementById('ydo').value);const aylik=[];let cariSermaye=0;let cariIndirim=0;document.querySelectorAll('.ay-input').forEach(inp=>{const ay=parseInt(inp.dataset.ay);const kist=parseInt(inp.dataset.kist);const tutar=parseNum(inp.value);if(tutar>0){const indirim=tutar*(faizYuzde/100)*(oranYuzde/100)*(kist/12);aylik.push({ay,ayAdi:AYLAR[ay-1],kist,tutar,indirim});cariIndirim+=indirim;cariSermaye+=tutar;}});const eskiIndirim=eskiSermaye*(faizYuzde/100)*(oranYuzde/100);const devredenDuzeltilmis=devreden*(1+ydo/100);const ydoTutari=devredenDuzeltilmis-devreden;const toplamIndirim=cariIndirim+eskiIndirim+devredenDuzeltilmis;return {hesapDonemi,oranYuzde,faizYuzde,aylik,cariSermaye,cariIndirim,eskiSermaye,eskiIndirim,devreden,ydo,ydoTutari,devredenDuzeltilmis,toplamIndirim};}
-function render(r){document.getElementById('result-empty').style.display='none';document.getElementById('result-content').style.display='block';const status=documen
+function ayToplamGuncelle(){let t=0;document.querySelectorAll('.ay-input').forEach(i=>{const v=parseNum(i.value);t+=v;i.parentElement.classList.toggle('dolu',v>0);});document.getElementById('ay-toplam').textContent=fmt(t);}
+document.querySelectorAll('input[inputmode="decimal"]').forEach(i=>{
+i.addEventListener('blur',e=>{const v=parseNum(e.target.value);if(v)e.target.value=TR.format(v);if(e.target.classList.contains('ay-input'))ayToplamGuncelle();});
+i.addEventListener('focus',e=>{const v=parseNum(e.target.value);if(v)e.target.value=String(v).replace('.',',');});
+i.addEventListener('input',e=>{if(e.target.classList.contains('ay-input'))ayToplamGuncelle();});
+});
+function calculate(){
+const hesapDonemi=document.getElementById('hesap-donemi').value;
+const oranYuzde=parseInt(document.querySelector('input[name="oran"]:checked').value);
+const faizYuzde=parseNum(document.getElementById('faiz').value);
+const eskiSermaye=parseNum(document.getElementById('eski-sermaye').value);
+const devreden=parseNum(document.getElementById('devreden').value);
+const ydo=parseNum(document.getElementById('ydo').value);
+const aylik=[];let cariSermaye=0;let cariIndirim=0;
+document.querySelectorAll('.ay-input').forEach(inp=>{
+const ay=parseInt(inp.dataset.ay);const kist=parseInt(inp.dataset.kist);const tutar=parseNum(inp.value);
+if(tutar>0){const indirim=tutar*(faizYuzde/100)*(oranYuzde/100)*(kist/12);
+aylik.push({ay,ayAdi:AYLAR[ay-1],kist,tutar,indirim});cariIndirim+=indirim;cariSermaye+=tutar;}
+});
+const eskiIndirim=eskiSermaye*(faizYuzde/100)*(oranYuzde/100);
+const devredenDuzeltilmis=devreden*(1+ydo/100);
+const ydoTutari=devredenDuzeltilmis-devreden;
+const toplamIndirim=cariIndirim+eskiIndirim+devredenDuzeltilmis;
+return {hesapDonemi,oranYuzde,faizYuzde,aylik,cariSermaye,cariIndirim,eskiSermaye,eskiIndirim,devreden,ydo,ydoTutari,devredenDuzeltilmis,toplamIndirim};
+}
+function render(r){
+document.getElementById('result-empty').style.display='none';
+document.getElementById('result-content').style.display='block';
+const status=document.getElementById('result-status');
+status.style.display='inline-block';status.className='status-pill';
+status.textContent=r.hesapDonemi+' · %'+r.oranYuzde;
+const onceki=parseInt(r.hesapDonemi)-1;
+let html='';
+html+='<div class="result-section-header">GENEL PARAMETRELER</div>';
+html+='<div class="result-row"><div class="result-num">A</div><div class="result-label">TCMB Ticari Kredi Faiz Oranı</div><div class="result-value">'+fmtPct(r.faizYuzde/100)+'</div></div>';
+html+='<div class="result-row"><div class="result-num">B</div><div class="result-label">Uygulanan İndirim Oranı</div><div class="result-value">%'+r.oranYuzde+'</div></div>';
+if(r.aylik.length>0){
+html+='<div class="result-section-header cari">CARİ YIL AYLIK ÖDEMELER ('+r.hesapDonemi+')</div>';
+r.aylik.forEach((a,idx)=>{
+html+='<div class="result-row compact"><div class="result-num">'+(idx+1)+'</div><div class="result-label"><strong>'+a.ayAdi+'</strong> · '+fmt(a.tutar)+' × %'+(r.faizYuzde).toFixed(2).replace('.',',')+' × %'+r.oranYuzde+' × '+a.kist+'/12</div><div class="result-value">'+fmt(a.indirim)+'</div></div>';
+});
+html+='<div class="result-row subtotal"><div class="result-num">Σ</div><div class="result-label">Cari Yıl İndirimi (Aylık Toplam)</div><div class="result-value">'+fmt(r.cariIndirim)+'</div></div>';
+}
+if(r.eskiSermaye>0){
+html+='<div class="result-section-header eski">ÖNCEKİ YIL SERMAYE ÖDEMELERİ (Tam Yıl)</div>';
+html+='<div class="result-row eski"><div class="result-num">E</div><div class="result-label"><strong>Önceki Yıl Sermaye</strong> · '+fmt(r.eskiSermaye)+' × %'+(r.faizYuzde).toFixed(2).replace('.',',')+' × %'+r.oranYuzde+' × 12/12</div><div class="result-value">'+fmt(r.eskiIndirim)+'</div></div>';
+html+='<div class="result-row subtotal eski"><div class="result-num">Σ</div><div class="result-label">Önceki Yıl Sermaye İndirimi</div><div class="result-value">'+fmt(r.eskiIndirim)+'</div></div>';
+}
+if(r.devreden>0){
+html+='<div class="result-section-header devreden">DEVREDEN İNDİRİM ('+onceki+' ve öncesi)</div>';
+html+='<div class="result-row dev"><div class="result-num">D</div><div class="result-label">Devreden İndirim Tutarı (Düzeltme Öncesi)</div><div class="result-value">'+fmt(r.devreden)+'</div></div>';
+if(r.ydo>0){
+html+='<div class="result-row dev"><div class="result-num">+</div><div class="result-label">Yeniden Değerleme Tutarı (× %'+(r.ydo).toFixed(2).replace('.',',')+')</div><div class="result-value">'+fmt(r.ydoTutari)+'</div></div>';
+}
+html+='<div class="result-row dev subtotal"><div class="result-num">Σ</div><div class="result-label">Düzeltilmiş Devreden Tutar</div><div class="result-value">'+fmt(r.devredenDuzeltilmis)+'</div></div>';
+}
+html+='<div class="result-row final"><div class="result-num">✓</div><div class="result-label">TOPLAM İNDİRİM TUTARI</div><div class="result-value">'+fmt(r.toplamIndirim)+'</div></div>';
+document.getElementById('results-list').innerHTML=html;
+window.lastResult=r;
+}
+document.getElementById('calc-btn').addEventListener('click',()=>{const r=calculate();render(r);if(window.innerWidth<980){document.querySelector('.results-header').scrollIntoView({behavior:'smooth',block:'start'});}});
+document.getElementById('reset-btn').addEventListener('click',()=>{
+document.querySelectorAll('.ay-input').forEach(i=>{i.value='';i.parentElement.classList.remove('dolu');});
+['faiz','eski-sermaye','devreden','ydo'].forEach(id=>{document.getElementById(id).value='';});
+document.getElementById('hesap-donemi').value='2025';
+document.getElementById('oran-50').checked=true;
+ayToplamGuncelle();
+document.getElementById('result-content').style.display='none';
+document.getElementById('result-empty').style.display='block';
+document.getElementById('result-status').style.display='none';
+});
+document.getElementById('copy-btn').addEventListener('click',async()=>{
+const r=window.lastResult;if(!r)return;
+const onceki=parseInt(r.hesapDonemi)-1;
+let aylikText='';
+if(r.aylik.length>0){aylikText='\n--- CARİ YIL AYLIK ÖDEMELER ---\n';r.aylik.forEach(a=>{aylikText+=a.ayAdi.padEnd(10)+' '+fmt(a.tutar).padStart(20)+'  (kıst '+a.kist+'/12)  → '+fmt(a.indirim)+'\n';});aylikText+=''.padEnd(10)+' '.repeat(20)+'              Cari Yıl Toplam: '+fmt(r.cariIndirim)+'\n';}
+let eskiText='';if(r.eskiSermaye>0){eskiText='\n--- ÖNCEKİ YIL SERMAYE (Tam Yıl) ---\nÖnceki Yıl Sermaye   : '+fmt(r.eskiSermaye)+'\nİndirim (12/12)      : '+fmt(r.eskiIndirim)+'\n';}
+let devText='';if(r.devreden>0){devText='\n--- DEVREDEN ('+onceki+' ve öncesi) ---\nDevreden Tutar       : '+fmt(r.devreden)+'\n';if(r.ydo>0)devText+='Yeniden Değerleme    : %'+(r.ydo).toFixed(2).replace('.',',')+' → +'+fmt(r.ydoTutari)+'\nDüzeltilmiş Devreden : '+fmt(r.devredenDuzeltilmis)+'\n';}
+const text='NAKİT SERMAYE ARTIRIMI İNDİRİMİ HESABI\nHesap Dönemi: '+r.hesapDonemi+'\n'+'-'.repeat(70)+'\n\nTCMB Faiz Oranı     : '+fmtPct(r.faizYuzde/100)+'\nİndirim Oranı       : %'+r.oranYuzde+'\n'+aylikText+eskiText+devText+'\n═════════════════════════════════════════════════\nTOPLAM İNDİRİM      : '+fmt(r.toplamIndirim)+'\n\nDAMA YMM — Ömer Murat Uluat';
+try{await navigator.clipboard.writeText(text);const btn=document.getElementById('copy-btn');const orig=btn.textContent;btn.textContent='✓ Kopyalandı';setTimeout(()=>btn.textContent=orig,1500);}catch(e){alert(text);}
+});
+document.getElementById('csv-btn').addEventListener('click',()=>{
+const r=window.lastResult;if(!r)return;
+const rows=[['DAMA YMM - Nakit Sermaye Artırımı İndirimi'],['Hesap Dönemi',r.hesapDonemi],['TCMB Faiz Oranı',(r.faizYuzde).toFixed(4)+'%'],['İndirim Oranı','%'+r.oranYuzde],[],['CARİ YIL AYLIK ÖDEMELER'],['Ay','Tutar (TL)','Kıst','İndirim (TL)']];
+r.aylik.forEach(a=>{rows.push([a.ayAdi,TR.format(a.tutar),a.kist+'/12',TR.format(a.indirim)]);});
+rows.push(['','','Cari Yıl Toplam',TR.format(r.cariIndirim)]);rows.push([]);
+if(r.eskiSermaye>0){rows.push(['ÖNCEKİ YIL SERMAYE']);rows.push(['Tutar',TR.format(r.eskiSermaye),'12/12',TR.format(r.eskiIndirim)]);rows.push([]);}
+if(r.devreden>0){rows.push(['DEVREDEN']);rows.push(['Devreden Tutar','','',TR.format(r.devreden)]);if(r.ydo>0){rows.push(['Yeniden Değerleme',(r.ydo).toFixed(2)+'%','',TR.format(r.ydoTutari)]);rows.push(['Düzeltilmiş Devreden','','',TR.format(r.devredenDuzeltilmis)]);}rows.push([]);}
+rows.push(['TOPLAM İNDİRİM','','',TR.format(r.toplamIndirim)]);
+const csv='\uFEFF'+rows.map(row=>row.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\n');
+const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');a.href=url;a.download='NSAI_'+r.hesapDonemi+'.csv';a.click();
+URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
