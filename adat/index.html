@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adat Hesaplama (Ortaklara Borç) | DAMA YMM</title>
+<meta name="description" content="KVK 13 transfer fiyatlandırması kapsamında ortaklara borç verme adat hesaplama aracı. Klasik mizan tablosu mantığı.">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#f4f6fa;--surface:#fff;--surface-alt:#f8f9fc;--border:#e3e7ee;--border-strong:#d0d6e0;--text:#080d15;--text-muted:#2d3548;--text-soft:#4a5266;--primary:#1e3a8a;--primary-dark:#152a63;--primary-light:#e8eef9;--accent:#0a7a4a;--accent-light:#dcfce7;--warn:#b94a00;--shadow:0 1px 3px rgba(16,24,40,.06),0 1px 2px rgba(16,24,40,.04)}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
+.wrap{max-width:1240px;margin:0 auto;padding:24px 20px 40px}
+.top-header{text-align:center;margin-bottom:24px}
+.top-header h1{font-size:30px;font-weight:700;margin:0 0 12px;color:var(--text);letter-spacing:-.3px}
+.top-header .firm{font-size:15px;color:var(--primary);font-weight:700}
+.top-header .firm .sep{color:var(--text-muted);margin:0 8px;font-weight:400}
+.top-header .firm .name{color:var(--text);font-weight:600}
+.year-badge{display:inline-block;margin-top:8px;padding:5px 14px;background:var(--primary);color:#fff;border-radius:14px;font-size:13px;font-weight:700;letter-spacing:.5px}
+.main-grid{display:grid;grid-template-columns:1fr;gap:20px;align-items:start}
+.form-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+@media(max-width:980px){.form-card-grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
+.section{padding:20px 22px;border-bottom:1px solid var(--border)}
+.section:last-child{border-bottom:none}
+.section-title{font-size:16px;font-weight:700;margin:0 0 18px;display:flex;align-items:center;gap:10px;color:var(--text);text-transform:uppercase;letter-spacing:.4px}
+.section-title .num{width:26px;height:26px;background:var(--primary);color:#fff;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
+@media(max-width:520px){.form-grid{grid-template-columns:1fr}}
+.form-grid .full{grid-column:1/-1}
+.field label{display:block;font-size:14.5px;font-weight:700;color:var(--text);margin-bottom:6px}
+.field .hint{display:block;font-size:13px;color:var(--text-muted);margin-top:5px;line-height:1.5;font-weight:500}
+.field input,.field select{width:100%;padding:11px 14px;font-size:15.5px;font-weight:600;border:1px solid var(--border-strong);border-radius:5px;background:#fff;color:var(--text);font-family:inherit}
+.field input:focus,.field select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(30,58,138,.10)}
+.field input::placeholder{color:#b8bec8}
+.template-row{padding:14px;background:var(--primary-light);border:1px solid #c8d3eb;border-radius:6px;margin-bottom:14px;display:flex;align-items:center;gap:12px}.template-row .ico{flex-shrink:0;font-size:24px}
+.template-row .text{flex:1;font-size:13.5px;color:var(--text);line-height:1.4;font-weight:500}
+.template-row .text strong{color:var(--primary);font-weight:700}
+.btn-template{flex-shrink:0;padding:9px 16px;font-size:13.5px;font-weight:700;border:1px solid var(--primary);border-radius:5px;background:#fff;color:var(--primary);cursor:pointer;font-family:inherit;white-space:nowrap}
+.btn-template:hover{background:var(--primary);color:#fff}
+.upload-area{border:2px dashed var(--border-strong);border-radius:8px;padding:28px 20px;text-align:center;background:var(--surface-alt);transition:all .2s;cursor:pointer}
+.upload-area:hover{border-color:var(--primary);background:var(--primary-light)}
+.upload-area.dragover{border-color:var(--primary);background:var(--primary-light);transform:scale(1.01)}
+.upload-area .icon{font-size:36px;display:block;margin-bottom:10px;opacity:.6}
+.upload-area .text{font-size:15px;font-weight:700;color:var(--text);margin:0 0 4px}
+.upload-area .sub{font-size:12.5px;color:var(--text-muted);margin:0;font-weight:500}
+.upload-area input[type=file]{display:none}
+.uploaded-info{margin-top:14px;padding:12px 14px;background:var(--accent-light);border:1px solid #a7d9bd;border-radius:6px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:#0a3d24}
+.uploaded-info .icon{flex-shrink:0;font-size:18px}
+.uploaded-info .name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uploaded-info .clear{flex-shrink:0;background:transparent;border:none;color:#0a3d24;font-size:14px;cursor:pointer;padding:4px 8px;border-radius:4px;font-weight:700}
+.uploaded-info .clear:hover{background:rgba(10,61,36,.1)}
+.faiz-grid{display:grid;grid-template-columns:1fr;gap:8px}
+.faiz-row{display:flex;align-items:center;gap:14px;padding:10px 14px;background:#fff;border:1px solid var(--border);border-radius:6px}
+.faiz-row .ay-label{flex-shrink:0;width:90px;font-size:14.5px;font-weight:700;color:var(--text)}
+.faiz-row .faiz-input{flex:1;width:100%;padding:10px 14px;font-size:15.5px;font-weight:600;border:1px solid var(--border-strong);border-radius:5px;background:#fff;color:var(--text);text-align:right;font-variant-numeric:tabular-nums;font-family:inherit}
+.faiz-row .faiz-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(30,58,138,.10)}
+.faiz-row .pct{flex-shrink:0;font-size:14px;font-weight:700;color:var(--text-muted);width:18px;text-align:left}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;padding:18px 22px;background:var(--surface-alt);border-top:1px solid var(--border)}
+.btn{padding:11px 20px;font-size:14px;font-weight:700;border:1px solid var(--border-strong);border-radius:5px;background:#fff;color:var(--text);cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:#f0f2f5;border-color:#b8bfca}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary);padding:10px 24px}
+.btn.primary:hover{background:var(--primary-dark);border-color:var(--primary-dark)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--text-muted)}
+.btn.ghost:hover{background:#f0f2f5;color:var(--text)}
+.results-empty{padding:80px 24px;text-align:center;color:var(--text-muted)}
+.results-empty .icon{font-size:36px;opacity:.4;margin-bottom:14px;display:block}
+.results-empty p{margin:0;font-size:14px;font-weight:500}
+.results-empty strong{color:var(--text);font-weight:700}
+.results-header{background:var(--primary);color:#fff;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.results-header h2{margin:0;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.status-pill{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:5px 11px;border-radius:11px;background:rgba(255,255,255,.18)}
+.adat-tablo-wrap{padding:0 22px;margin-top:14px;overflow-x:auto}
+.adat-tablo{width:100%;border-collapse:collapse;font-size:14px}
+.adat-tablo th{background:var(--surface-alt);color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px;font-size:11.5px;padding:12px 10px;border-bottom:2px solid var(--border-strong);text-align:right;white-space:nowrap}
+.adat-tablo th:first-child{text-align:left}
+.adat-tablo td{padding:10px;border-bottom:1px solid #eef0f3;font-variant-numeric:tabular-nums;text-align:right;font-weight:500}
+.adat-tablo td:first-child{text-align:left;font-weight:700;color:var(--text);white-space:nowrap}
+.adat-tablo tr:hover td{background:#fafbfd}
+.adat-tablo tr:last-child td{border-bottom:none}
+.adat-tablo tfoot td{background:var(--primary-light);color:var(--primary);font-weight:700;font-size:15px;border-top:2px solid var(--primary);padding:14px 10px}
+.summary-row{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid #eef0f3}
+.summary-row:last-of-type{border-bottom:none}
+.summary-row.final{background:linear-gradient(180deg,var(--accent-light) 0%,#e8f8ee 100%);border-top:2px solid var(--accent);padding:18px 22px}
+.summary-row .label{font-size:14.5px;font-weight:600;color:var(--text)}
+.summary-row.final .label{font-size:15.5px;font-weight:700;color:#0a3d24}
+.summary-row .value{font-size:15.5px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
+.summary-row.final .value{font-size:18px;color:var(--accent)}
+.error-box{margin:14px 22px;padding:12px 14px;background:#fee2e2;border-left:3px solid #b94a00;color:#7f1d1d;font-size:13px;border-radius:0 5px 5px 0;line-height:1.5;font-weight:500}
+.output-actions{padding:14px 22px;background:var(--surface-alt);border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap}
+.footer{text-align:center;margin-top:32px;padding:20px 16px 0;color:var(--text-muted);font-size:12px;line-height:1.7;border-top:1px solid var(--border);font-weight:500}
+.footer strong{color:var(--text);font-weight:700}
+.footer a{color:var(--primary);text-decoration:none;font-weight:600}
+@media print{body{background:#fff}.wrap{padding:0;max-width:none}.btn-row,.output-actions,.no-print,.upload-area,.template-row{display:none!important}.main-grid{grid-template-columns:1fr;gap:8px}.card{box-shadow:none;border:1px solid #ccc}@page{margin:1.5cm landscape}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top-header">
+<h1>Adat Hesaplama (Ortaklara Borç)</h1>
+<div class="firm">DAMA YMM <span class="sep">·</span> <span class="name">Ömer Murat Uluat</span></div>
+<div><span class="year-badge" id="year-badge">HESAP DÖNEMİ: 2026</span></div>
+</div>
+<div class="main-grid">
+<div class="form-card-grid">
+<div class="card">
+<div class="section">
+<h2 class="section-title"><span class="num">1</span> Cari Hesap Verisi (Excel)</h2>
+<div class="template-row">
+<span class="ico">📋</span>
+<span class="text">Excel <strong>3 sütunlu</strong>: <strong>Tarih · Borç · Alacak</strong></span>
+<button class="btn-template" id="template-btn">📥 Şablon İndir</button>
+</div>
+<label class="upload-area" id="upload-area">
+<span class="icon">📤</span>
+<p class="text">Muavin Excel'i sürükleyin veya tıklayın</p>
+<p class="sub">.xlsx · .xls</p>
+<input type="file" id="file-input" accept=".xlsx,.xls">
+</label>
+<div id="upload-result"></div>
+</div>
+</div>
+<div class="card">
+<div class="section">
+<h2 class="section-title"><span class="num">2</span> Hesaplama Dönemi</h2>
+<div class="form-grid">
+<div class="field">
+<label>Hesap Yılı</label>
+<select id="hesap-yil" style="text-align:left">
+<option value="2026">2026</option>
+<option value="2027">2027</option>
+<option value="2028">2028</option>
+<option value="2029">2029</option>
+<option value="2030">2030</option>
+</select>
+</div>
+<div class="field"><label>&nbsp;</label><span style="display:block;font-size:13px;color:var(--text-muted);font-weight:500;padding-top:14px">Dönem ve faiz tablosu seçilen yıla göre güncellenir</span></div>
+<div class="field">
+<label>Dönem Başlangıç</label>
+<input type="date" id="donem-bas" style="text-align:left">
+</div>
+<div class="field">
+<label>Dönem Bitiş</label>
+<input type="date" id="donem-bit" style="text-align:left">
+</div>
+</div>
+</div>
+<div class="section">
+<h2 class="section-title"><span class="num">3</span> <span id="faiz-baslik">2026 Aylık Faiz Oranları (%)</span></h2>
+<p style="margin:0 0 14px;font-size:13px;color:var(--text-muted);line-height:1.5">Her ay için TCMB ticari kredi ağırlıklı yıllık ortalama faiz oranı. Tüm aylar varsayılan <strong>%39,75</strong> ile gelir, değişen ayları elle güncelleyiniz. Her hareket, kendi tarihinin ait olduğu ayın faiziyle hesaplanır.</p>
+<div class="faiz-grid" id="faiz-grid"></div>
+</div>
+<div class="btn-row">
+<button class="btn primary" id="calc-btn"><span>▶</span> Hesapla</button>
+<button class="btn ghost" id="reset-btn">Sıfırla</button>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="results-header">
+<h2>📋 Adat Hesaplama Tablosu</h2>
+<span id="result-status" class="status-pill" style="display:none"></span>
+</div>
+<div id="result-empty" class="results-empty">
+<span class="icon">📊</span>
+<p>Excel yükleyip <strong>Hesapla</strong> butonuna basınız.</p>
+</div>
+<div id="result-content" style="display:none">
+<div id="results-list"></div>
+<div class="output-actions no-print">
+<button class="btn primary" onclick="window.print()">PDF / Yazdır</button>
+<button class="btn" id="excel-btn">Excel İndir</button>
+</div>
+</div>
+</div>
+</div>
+<div class="footer">
+<strong>DAMA YMM</strong> — Yeminli Mali Müşavirlik · Ömer Murat Uluat<br>
+Bu hesaplama programı bilgilendirme amaçlıdır. KVK md.13 (Transfer Fiyatlandırması) kapsamında emsal faiz oranı tespiti için TCMB istatistiklerinin güncel halini doğrulayın.<br>
+© 2026 DAMA YMM · <a href="https://damaymm.com">damaymm.com</a>
+</div>
+</div>
+<script>
+const TR=new Intl.NumberFormat('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
+function fmt(n){if(n===null||n===undefined||isNaN(n))return '—';return TR.format(n)+' TL';}
+function fmtPlain(n){if(n===null||n===undefined||isNaN(n))return '—';return TR.format(n);}
+function parseNum(s){if(s===null||s===undefined||s==='')return 0;if(typeof s==='number')return s;s=String(s).trim().replace(/\s/g,'').replace(/\./g,'').replace(',','.');const n=parseFloat(s);return isNaN(n)?0:n;}
+function fmtTarih(d){const dt=new Date(d);return dt.toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric'});}
+const BUGUN=new Date();
+const BUGUNUN_YILI=BUGUN.getFullYear();
+let YIL=BUGUNUN_YILI<2026?2026:(BUGUNUN_YILI>2030?2030:BUGUNUN_YILI);
+const yilSelect=document.getElementById('hesap-yil');
+yilSelect.value=YIL;
+document.getElementById('year-badge').textContent='HESAP DÖNEMİ: '+YIL;
+document.getElementById('faiz-baslik').textContent=YIL+' Aylık Faiz Oranları (%)';
+function yilDegistir(){
+  YIL=parseInt(yilSelect.value);
+  document.getElementById('year-badge').textContent='HESAP DÖNEMİ: '+YIL;
+  document.getElementById('faiz-baslik').textContent=YIL+' Aylık Faiz Oranları (%)';
+  document.getElementById('donem-bas').value=YIL+'-01-01';
+  if(YIL===BUGUNUN_YILI){
+    document.getElementById('donem-bit').value=BUGUN.toISOString().slice(0,10);
+  } else {
+    document.getElementById('donem-bit').value=YIL+'-12-31';
+  }
+}
+yilSelect.addEventListener('change',yilDegistir);
+document.getElementById('donem-bas').value=YIL+'-01-01';
+if(YIL===BUGUNUN_YILI){
+  document.getElementById('donem-bit').value=BUGUN.toISOString().slice(0,10);
+} else {
+  document.getElementById('donem-bit').value=YIL+'-12-31';
+}
+const AY_ADI=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+const faizGrid=document.getElementById('faiz-grid');
+const faizInputs={};
+for(let i=1;i<=12;i++){
+  const div=document.createElement('div');
+  div.className='faiz-row';
+  div.innerHTML='<span class="ay-label">'+AY_ADI[i-1]+'</span><input type="text" class="faiz-input" data-ay="'+i+'" value="'+TR.format(39.75)+'" placeholder="0,00" inputmode="decimal"><span class="pct">%</span>';
+  faizGrid.appendChild(div);
+  faizInputs[i]=div.querySelector('input');
+}
+document.getElementById('template-btn').addEventListener('click',()=>{
+  const ws=XLSX.utils.aoa_to_sheet([
+    ['Tarih','Borç','Alacak'],
+    ['01.01.'+YIL,'1.000.000,00','0,00'],
+    ['15.03.'+YIL,'0,00','300.000,00'],
+    ['10.07.'+YIL,'500.000,00','0,00'],
+    ['20.10.'+YIL,'0,00','800.000,00']
+  ]);
+  Object.keys(ws).forEach(key=>{
+    if(key[0]==='!')return;
+    if(ws[key].v!==undefined){ws[key].t='s';}
+  });
+  ws['!cols']=[{wch:14},{wch:18},{wch:18}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Cari Hesap');
+  XLSX.writeFile(wb,'Adat_Sablonu_'+YIL+'.xlsx');
+});
+let yuklenenVeri=null;
+const uploadArea=document.getElementById('upload-area');
+const fileInput=document.getElementById('file-input');
+const uploadResult=document.getElementById('upload-result');
+uploadArea.addEventListener('click',()=>fileInput.click());
+uploadArea.addEventListener('dragover',e=>{e.preventDefault();uploadArea.classList.add('dragover');});
+uploadArea.addEventListener('dragleave',()=>uploadArea.classList.remove('dragover'));
+uploadArea.addEventListener('drop',e=>{
+  e.preventDefault();uploadArea.classList.remove('dragover');
+  if(e.dataTransfer.files.length>0)handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change',e=>{if(e.target.files.length>0)handleFile(e.target.files[0]);});
+function handleFile(file){
+  document.getElementById('result-content').style.display='none';
+  document.getElementById('result-empty').style.display='block';
+  document.getElementById('result-status').style.display='none';
+  window.lastResult=null;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const data=XLSX.utils.sheet_to_json(ws,{raw:true,defval:''});
+      const hareketler=[];
+      const errors=[];
+      data.forEach((row,idx)=>{
+        const keys=Object.keys(row);
+        const tarihKey=keys.find(k=>k.toLowerCase().includes('tarih'));
+        const borcKey=keys.find(k=>k.toLowerCase().includes('borç')||k.toLowerCase().includes('borc'));
+        const alacakKey=keys.find(k=>k.toLowerCase().includes('alacak'));
+        if(!tarihKey || !borcKey || !alacakKey){
+          if(idx===0)errors.push('Tarih, Borç ve Alacak sütunları bulunamadı.');
+          return;
+        }
+        const tarihStr=row[tarihKey];
+        if(tarihStr===null||tarihStr===undefined||tarihStr==='')return;
+        let tarih;
+        if(tarihStr instanceof Date){tarih=tarihStr;}
+        else{
+          const s=String(tarihStr).trim();
+          const m1=s.match(/^(\d{1,2})[\.\/\-](\d{1,2})[\.\/\-](\d{4})/);
+          const m2=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+          if(m1){tarih=new Date(parseInt(m1[3]),parseInt(m1[2])-1,parseInt(m1[1]));}
+          else if(m2){tarih=new Date(parseInt(m2[1]),parseInt(m2[2])-1,parseInt(m2[3]));}
+          else{tarih=new Date(s);}
+        }
+        if(isNaN(tarih.getTime())){errors.push('Satır '+(idx+2)+': Tarih okunamadı: '+tarihStr);return;}
+        const borc=parseNum(row[borcKey]);
+        const alacak=parseNum(row[alacakKey]);
+        hareketler.push({tarih,borc,alacak});
+      });
+      if(hareketler.length===0 && errors.length===0){errors.push('Excel dosyasında veri bulunamadı.');}
+      hareketler.sort((a,b)=>a.tarih-b.tarih);
+      yuklenenVeri={dosyaAdi:file.name,hareketler,errors};
+      gosterYuklemeSonucu();
+    }catch(err){
+      console.error('Excel hatası:',err);
+      yuklenenVeri=null;
+      uploadResult.innerHTML='<div class="error-box"><strong>Hata:</strong> Excel okunamadı. '+err.message+'</div>';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+function gosterYuklemeSonucu(){
+  if(!yuklenenVeri)return;
+  let html='<div class="uploaded-info"><span class="icon">✓</span><span class="name">'+yuklenenVeri.dosyaAdi+' · '+yuklenenVeri.hareketler.length+' hareket</span><button class="clear" id="clear-file">Kaldır</button></div>';
+  if(yuklenenVeri.errors.length>0){
+    html+='<div class="error-box" style="margin:14px 0 0"><strong>Uyarılar:</strong><br>'+yuklenenVeri.errors.join('<br>')+'</div>';
+  }
+  uploadResult.innerHTML=html;
+  document.getElementById('clear-file').addEventListener('click',()=>{
+    yuklenenVeri=null;uploadResult.innerHTML='';fileInput.value='';
+  });
+}
+function gunSayisi(d1,d2){return Math.round((d2-d1)/(24*60*60*1000));}
+function calculate(){
+  if(!yuklenenVeri||yuklenenVeri.hareketler.length===0){
+    alert('Lütfen önce Excel dosyası yükleyiniz.');return null;
+  }
+  const donemBas=new Date(document.getElementById('donem-bas').value);
+  const donemBit=new Date(document.getElementById('donem-bit').value);
+  if(isNaN(donemBas.getTime())||isNaN(donemBit.getTime())){alert('Lütfen dönem tarihlerini giriniz.');return null;}
+  if(donemBas>donemBit){alert('Başlangıç tarihi bitiş tarihinden büyük olamaz.');return null;}
+  const aylikFaiz={};
+  for(let i=1;i<=12;i++){aylikFaiz[i]=parseNum(faizInputs[i].value);}
+  const tumHareketler=yuklenenVeri.hareketler;
+  let acilisBakiye=0;
+  tumHareketler.forEach(h=>{if(h.tarih<donemBas)acilisBakiye+=(h.borc-h.alacak);});
+  const donemHareketler=tumHareketler.filter(h=>h.tarih>=donemBas&&h.tarih<=donemBit);
+  const satirlar=[];
+  let mevcutBakiye=acilisBakiye;
+  function ayinFaizi(tarih){
+    const ay=tarih.getMonth()+1;
+    return aylikFaiz[ay]||0;
+  }
+  if(donemHareketler.length===0){
+    const gun=gunSayisi(donemBas,donemBit)+1;
+    const faizOrani=ayinFaizi(donemBas);
+    const adat=mevcutBakiye*gun*(faizOrani/100)/365;
+    satirlar.push({tarih:donemBas,borc:0,alacak:0,bakiye:mevcutBakiye,gun,faizOrani,adat,aciklama:'Açılış bakiyesi (dönem boyu)'});
+  } else {
+    const ilkHareket=donemHareketler[0];
+    if(acilisBakiye!==0||ilkHareket.tarih>donemBas){
+      const gun=gunSayisi(donemBas,ilkHareket.tarih);
+      const faizOrani=ayinFaizi(donemBas);
+      const adat=acilisBakiye*gun*(faizOrani/100)/365;
+      if(gun>0){satirlar.push({tarih:donemBas,borc:0,alacak:0,bakiye:acilisBakiye,gun,faizOrani,adat,aciklama:'Açılış bakiyesi'});}
+    }
+    donemHareketler.forEach((h,i)=>{
+      mevcutBakiye+=(h.borc-h.alacak);
+      let sonrakiTarih;
+      if(i<donemHareketler.length-1){sonrakiTarih=donemHareketler[i+1].tarih;}
+      else{sonrakiTarih=new Date(donemBit.getTime()+24*60*60*1000);}
+      const gun=gunSayisi(h.tarih,sonrakiTarih);
+      if(gun<=0)return;
+      const faizOrani=ayinFaizi(h.tarih);
+      const adat=mevcutBakiye*gun*(faizOrani/100)/365;
+      satirlar.push({tarih:h.tarih,borc:h.borc,alacak:h.alacak,bakiye:mevcutBakiye,gun,faizOrani,adat});
+    });
+  }
+  const toplamAdat=satirlar.reduce((t,s)=>t+s.adat,0);
+  const toplamGun=satirlar.reduce((t,s)=>t+s.gun,0);
+  return {satirlar,toplamAdat,toplamGun,donemBas,donemBit,acilisBakiye,sonBakiye:mevcutBakiye};
+}
+function render(r){
+  document.getElementById('result-empty').style.display='none';
+  document.getElementById('result-content').style.display='block';
+  const status=document.getElementById('result-status');
+  status.style.display='inline-block';status.className='status-pill';
+  status.textContent=r.satirlar.length+' SATIR · '+YIL;
+  let html='';
+  html+='<div class="summary-row"><span class="label">Dönem</span><span class="value">'+fmtTarih(r.donemBas)+' — '+fmtTarih(r.donemBit)+'</span></div>';
+  html+='<div class="summary-row"><span class="label">Açılış Bakiyesi</span><span class="value">'+fmt(r.acilisBakiye)+'</span></div>';
+  html+='<div class="summary-row"><span class="label">Dönem Sonu Bakiye</span><span class="value">'+fmt(r.sonBakiye)+'</span></div>';
+  html+='<div class="summary-row"><span class="label">Toplam Gün</span><span class="value">'+r.toplamGun+'</span></div>';
+  html+='<div class="adat-tablo-wrap"><table class="adat-tablo"><thead><tr><th>Tarih</th><th>Borç</th><th>Alacak</th><th>Bakiye</th><th>Gün</th><th>Faiz %</th><th>Adat</th></tr></thead><tbody>';
+  r.satirlar.forEach(s=>{
+    html+='<tr><td>'+fmtTarih(s.tarih)+(s.aciklama?' <span style="font-size:11px;color:var(--text-muted);font-weight:500">('+s.aciklama+')</span>':'')+'</td><td>'+(s.borc>0?fmtPlain(s.borc):'—')+'</td><td>'+(s.alacak>0?fmtPlain(s.alacak):'—')+'</td><td>'+fmtPlain(s.bakiye)+'</td><td>'+s.gun+'</td><td>'+TR.format(s.faizOrani)+'</td><td>'+fmtPlain(s.adat)+'</td></tr>';
+  });
+  html+='</tbody><tfoot><tr><td colspan="6">TOPLAM ADAT FAİZİ</td><td>'+fmtPlain(r.toplamAdat)+'</td></tr></tfoot></table></div>';
+  html+='<div class="summary-row final"><span class="label">TOPLAM ADAT FAİZİ</span><span class="value">'+fmt(r.toplamAdat)+'</span></div>';
+  document.getElementById('results-list').innerHTML=html;
+  window.lastResult=r;
+}
+document.getElementById('calc-btn').addEventListener('click',()=>{
+  const r=calculate();
+  if(r){render(r);if(window.innerWidth<980){document.querySelector('.results-header').scrollIntoView({behavior:'smooth',block:'start'});}}
+});
+document.getElementById('reset-btn').addEventListener('click',()=>{
+  yuklenenVeri=null;uploadResult.innerHTML='';fileInput.value='';
+  document.getElementById('donem-bas').value=YIL+'-01-01';
+  if(YIL===BUGUNUN_YILI){document.getElementById('donem-bit').value=BUGUN.toISOString().slice(0,10);}
+  else{document.getElementById('donem-bit').value=YIL+'-12-31';}
+  for(let i=1;i<=12;i++){faizInputs[i].value=TR.format(39.75);}
+  document.getElementById('result-content').style.display='none';
+  document.getElementById('result-empty').style.display='block';
+  document.getElementById('result-status').style.display='none';
+});
+document.getElementById('excel-btn').addEventListener('click',()=>{
+  const r=window.lastResult;if(!r)return;
+  const data=[
+    ['DAMA YMM - Adat Hesaplama Raporu '+YIL],
+    ['Dönem',fmtTarih(r.donemBas)+' — '+fmtTarih(r.donemBit)],
+    ['Açılış Bakiyesi',r.acilisBakiye],
+    ['Dönem Sonu Bakiye',r.sonBakiye],
+    [],
+    ['Tarih','Borç','Alacak','Bakiye','Gün','Faiz %','Adat']
+  ];
+  r.satirlar.forEach(s=>{
+    data.push([fmtTarih(s.tarih),s.borc||'',s.alacak||'',s.bakiye,s.gun,s.faizOrani,s.adat]);
+  });
+  data.push(['TOPLAM','','','','','',r.toplamAdat]);
+  const ws=XLSX.utils.aoa_to_sheet(data);
+  ws['!cols']=[{wch:14},{wch:16},{wch:16},{wch:16},{wch:8},{wch:10},{wch:16}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Adat Raporu');
+  XLSX.writeFile(wb,'Adat_Raporu_'+YIL+'.xlsx');
+});
+</script>
+</body>
+</html>
